@@ -128,3 +128,26 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# >>> copy start
+
+.DS_STORE
+
+node_modules
+dist
+ai
+geologic-patterns
+.env
+Dockerfile
+docker-compose.yaml
+
+# For yarn v2 with Plug'n'Play
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# <<< copy end

@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "target": "es5",
+    "module": "es2020",
+    "lib": ["es2018", "dom"],
+    "strict": false,
+    "sourceMap": true,
+    "declaration": true,
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declarationDir": "dist/types",
+    "outDir": "dist/lib",
+    "typeRoots": ["node_modules/@types"],
+    "paths": {
+      "~/*": ["./src/*"],
+      "@macrostrat/cesium-viewer": ["packages/cesium-viewer/src/"],
+      "@macrostrat/cesium-martini": ["packages/cesium-martini"],
+      "@macrostrat/ui-components": [
+        "deps/web-components/packages/ui-components/src/"
+      ],
+      "@macrostrat/column-components": [
+        "deps/web-components/packages/column-components/src/"
+      ],
+      "@macrostrat/map-components": [
+        "deps/web-components/packages/map-components/src/"
+      ],
+      "@macrostrat/mapbox-styles": [
+        "deps/web-components/packages/mapbox-styles/src"
+      ],
+      "@macrostrat/mapbox-react": [
+        "deps/web-components/packages/mapbox-react/src"
+      ],
+      "@macrostrat/mapbox-utils": [
+        "deps/web-components/packages/mapbox-utils/src"
+      ]
+    }
+  },
+  "include": ["src"]
+}
