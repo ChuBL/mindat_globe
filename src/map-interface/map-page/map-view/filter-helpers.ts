@@ -257,7 +257,6 @@ export async function getMindatData(
     console.error("The type of jsonData is", typeof(parsedData), "The error is this", error);
   }
 
-  console.log(filteredData)
 
   return {
     type: "FeatureCollection",

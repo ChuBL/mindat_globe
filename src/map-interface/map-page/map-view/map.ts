@@ -449,8 +449,7 @@ class VestigialMap extends Component<MapProps, {}> {
       maxClusterZoom
     );
     
-    console.log(this.pbdbPoints);
-
+    
     // Show or hide the proper PBDB layers
     if (zoom < maxClusterZoom) {
       this.map.getSource("pbdb-clusters").setData(this.pbdbPoints);
@@ -482,7 +481,6 @@ class VestigialMap extends Component<MapProps, {}> {
       zoom
     );
 
-    console.log(this.mindatPoints);
 
     // Show or hide the mindat layers
     this.map.getSource("mindat-points").setData(this.mindatPoints);
