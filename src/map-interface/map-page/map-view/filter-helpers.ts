@@ -257,6 +257,8 @@ export async function getMindatData(
     console.error("The type of jsonData is", typeof(parsedData), "The error is this", error);
   }
 
+  console.log(filteredData)
+
   return {
     type: "FeatureCollection",
     features: filteredData.map((f, i) => {
@@ -266,7 +268,7 @@ export async function getMindatData(
         id: i,
         geometry: {
           type: "Point",
-          coordinates: [f.lng, f.lat],
+          coordinates: [f.longitude, f.latitude],
         },
       };
     }),

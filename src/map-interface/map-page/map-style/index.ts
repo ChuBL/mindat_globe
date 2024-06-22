@@ -22,6 +22,7 @@ const overlaySources = {
   },
   "mindat-points": {
     type: "geojson",
+    generateId: true,
     data: {
       type: "FeatureCollection",
       features: [],
