@@ -20,6 +20,13 @@ const overlaySources = {
       features: [],
     },
   },
+  "mindat-points": {
+    type: "geojson",
+    data: {
+      type: "FeatureCollection",
+      features: [],
+    },
+  },
   "pbdb-clusters": {
     type: "geojson",
     generateId: true,
@@ -289,6 +296,28 @@ const overlayLayers = [
         0,
       ],
       "circle-stroke-color": "#fff",
+    },
+  },
+  {
+    id: "mindat-points",
+    type: "circle",
+    source: "mindat-points",
+    filter: ["!", ["has", "point_count"]],
+    paint: {
+      "circle-color": [
+        "case",
+        ["boolean", ["feature-state", "hover"], false],
+        "#154974",
+        "#2171b5",
+      ],
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 8, 16, 20],
+      "circle-stroke-width": [
+        "case",
+        ["boolean", ["feature-state", "hover"], false],
+        2,
+        1,
+      ],
+      "circle-stroke-color": "#ffffff",
     },
   },
 ];

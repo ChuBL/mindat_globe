@@ -187,3 +187,88 @@ export async function getPBDBData(
     };
   });
 }
+
+
+export async function getMindatData(
+  filters: FilterData[],
+  bounds: mapboxgl.LngLatBounds,
+  zoom: number,
+): Promise<FeatureCollection<Point, any>> {
+  // One for time, one for everything else because
+  // time filters require a separate request for each filter
+  let timeQuery = [];
+  let queryString = [];
+
+
+  // lith filters broken on pbdb (500 error returned)
+  // if (map.lithFilters.length) {
+  //   let filters = map.lithFilters.filter((f) => f != "sedimentary");
+  //   if (filters.length) {
+  //     queryString.push(`lithology=${filters.join(",")}`);
+  //   }
+  // }
+
+  let urls = [];
+  // Make sure lngs are between -180 and 180
+  const lngMin = bounds._sw.lng < -180 ? -180 : bounds._sw.lng;
+  const lngMax = bounds._ne.lng > 180 ? 180 : bounds._ne.lng;
+  // If more than one time filter is present, multiple requests are needed
+
+  /* Currently there is a limitation in the globe for the getBounds function that
+  resolves incorrect latitude ranges for low zoom levels.
+  - https://docs.mapbox.com/mapbox-gl-js/guides/globe/#limitations-of-globe
+  - https://github.com/mapbox/mapbox-gl-js/issues/11795
+  -   https://github.com/UW-Macrostrat/web/issues/68
+
+  This is a workaround for that issue.
+  */
+  let latMin = bounds._sw.lat;
+  let latMax = bounds._ne.lat;
+
+  if (zoom < 5) {
+    latMin = Math.max(Math.min(latMin, latMin * 5), -85);
+    latMax = Math.min(Math.max(latMax, latMax * 5), 85);
+  }
+
+  let parsedData = []
+
+  try {
+    const jsonData = await fetch('/Mindat_data_partial.json'); // Assuming readJsonFile returns jsonData
+    parsedData = await jsonData.json();
+  } catch (error) {
+    console.error('Error fetching Mindat data:', error);
+  }
+
+  //const jsonData = await readJsonFile('~/src/data/Mindat_data_partial.json')['results'];
+  let filteredData = [];
+
+  // const filteredData = jsonData.filter((dict) => {
+  //   return dict.longitude > lngMin && dict.longitude < lngMax &&
+  //          dict.latitude > latMin && dict.latitude < latMax;
+  // });
+
+  try {
+    parsedData.results.forEach((dict) => {
+      if(dict.longitude > lngMin && dict.longitude < lngMax && dict.latitude > latMin && dict.latitude < latMax){
+        filteredData.push(dict);
+      }
+    });
+  } catch(error) {
+    console.error("The type of jsonData is", typeof(parsedData), "The error is this", error);
+  }
+
+  return {
+    type: "FeatureCollection",
+    features: filteredData.map((f, i) => {
+      return {
+        type: "Feature",
+        properties: f,
+        id: i,
+        geometry: {
+          type: "Point",
+          coordinates: [f.lng, f.lat],
+        },
+      };
+    }),
+  };
+}

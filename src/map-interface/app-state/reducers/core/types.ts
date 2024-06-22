@@ -30,6 +30,7 @@ type MAP_QUERY = {
 type GET_COLUMN_UNITS = { type: "get-column-units"; column: ColumnProperties };
 type GET_ELEVATION = { type: "get-elevation"; line: any };
 type GET_PBDB = { type: "get-pbdb"; collection_nos: any };
+type GET_MINDAT = { type: "get-mindat"; collection_nos: any };
 // Define constants to be passed with actions
 type RECIEVE_DATA = { type: "recieve-data" };
 type REQUEST_DATA = { type: "request-data" };
@@ -145,6 +146,7 @@ export type CoreAction =
   | SET_INPUT_FOCUS
   | SET_SEARCH_TERM
   | GET_PBDB
+  | GET_MINDAT
   | GET_ELEVATION
   | GET_COLUMN_UNITS
   | MAP_QUERY
@@ -239,6 +241,7 @@ export interface CoreState extends MapState, AsyncRequestState {
   inputFocus: boolean;
   elevationMarkerLocation: any;
   pbdbData: any[];
+  mindatData: any[];
   mapCenter: MapCenterInfo;
   mapUse3D: boolean;
   filtersOpen: boolean;

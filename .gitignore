@@ -151,3 +151,5 @@ docker-compose.yaml
 !.yarn/versions
 
 # <<< copy end
+public/Mindat_data_full.json
+public/Mindat_data_partial.json

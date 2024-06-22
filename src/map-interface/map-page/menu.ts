@@ -3,6 +3,7 @@ import ColumnIcon from "../components/icons/ColumnIcon";
 import LineIcon from "../components/icons/LineIcon";
 import ElevationIcon from "../components/icons/ElevationIcon";
 import FossilIcon from "../components/icons/FossilIcon";
+import MindatIcon from "../components/icons/MindatIcon";
 import BedrockIcon from "../components/icons/BedrockIcon";
 import {
   Button,
@@ -100,6 +101,11 @@ const LayerList = (props) => {
         name: "Fossils",
         layer: MapLayer.FOSSILS,
         icon: FossilIcon,
+      }),
+      h(LayerButton, {
+        name: "Mindat",
+        layer: MapLayer.MINDAT,
+        icon: MindatIcon,
       }),
       h(LayerButton, {
         name: "Satellite",
