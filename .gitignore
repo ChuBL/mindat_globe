@@ -152,3 +152,5 @@ docker-compose.yaml
 
 # <<< copy end
 public/Mindat_data_full.json
+public/MindatSql.db
+.apikey.yaml
