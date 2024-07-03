@@ -235,3 +235,55 @@ function mergePBDBResponses(collectionResponse, occurrenceResponse) {
     return [];
   }
 }
+
+export async function getMindatPoint(id) {
+  let dataset = [];
+  let datapoint = {};
+
+  try {
+    const jsonData = await fetch('/Mindat_Localities_0.json'); // Assuming readJsonFile returns jsonData
+    dataset = await jsonData.json();
+  } catch (error) {
+    console.error('Cannot find mindal Locality data:', error);
+  }
+
+
+  while(id < dataset['range']['min'] || id > dataset['range']['max']) {
+    if('next' in dataset){
+      try {
+        const jsonData = await fetch('/' + dataset['next'] + '.json'); // Assuming readJsonFile returns jsonData
+        dataset = await jsonData.json();
+      } catch (error) {
+        console.error('Error fetching Mindat data:', error);
+      }    
+    } else {
+      console.error('Missing object in DataSet');
+    }
+  }
+
+
+  if(id < (dataset['range']['max']/2)){
+    console.log(dataset['results'][1]['id']);
+    for (let i = 0; i < dataset['results'].length; i++) {
+      if (dataset['results'][i]['id'] == id) {
+        datapoint = dataset['results'][i];
+      }
+    }
+  } else {
+    for (let i = dataset['results'].length-1; i > 0; i--) {
+      if (dataset['results'][i]['id'] == id) {
+        datapoint = dataset['results'][i];
+      }
+    }
+  }
+
+  return {
+    type: "Feature",
+    properties: datapoint,
+    id: id,
+    geometry: {
+      type: "Point",
+      coordinates: [null, null],
+    },
+  };
+}

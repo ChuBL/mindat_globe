@@ -276,6 +276,22 @@ class VestigialMap extends Component<MapProps, {}> {
         }
       }
 
+      //Queries mindat data points for in depth retrieval
+      if(this.props.mapLayers.has(MapLayer.MINDAT)) {
+        let collections = this.map.queryRenderedFeatures(event.point, {
+          layers: ["mindat-points"],
+        });
+
+        if(collections.length && collections[0].properties.hasOwnProperty("id")){
+          let id = collections[0].properties.id
+          this.props.runAction({ type: "get-mindat", id });
+        }else{
+          this.props.runAction({ type: "reset-mindat"})
+        }
+      }
+
+    
+
       // Otherwise try to query the geologic map
       let features = this.map.queryRenderedFeatures(event.point, {
         layers: ["burwell_fill", "column_fill", "filtered_column_fill"],

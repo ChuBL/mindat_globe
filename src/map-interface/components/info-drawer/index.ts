@@ -3,6 +3,7 @@ import hyper from "@macrostrat/hyper";
 import { MapLayer, useAppActions } from "~/map-interface/app-state";
 import { InfoDrawerHeader } from "./header";
 import { FossilCollections } from "./fossil-collections";
+import { MindatCollections } from "./mindat-panel";
 import { GeologicMapInfo } from "./geo-map";
 import { MacrostratLinkedData } from "./macrostrat-linked";
 import { RegionalStratigraphy } from "./reg-strat";
@@ -57,7 +58,7 @@ function InfoDrawer(props) {
 }
 
 function InfoDrawerInterior(props) {
-  const { mapInfo, columnInfo, pbdbData, mapLayers } = useAppState(
+  const { mapInfo, columnInfo, pbdbData, mapLayers, mindatPointData } = useAppState(
     (state) => state.core
   );
 
@@ -93,6 +94,7 @@ function InfoDrawerInterior(props) {
       columnInfo,
     }),
     h(FossilCollections, { data: pbdbData, expanded: true }),
+    h(MindatCollections, { data: mindatPointData, expanded: true}),
     h(MacrostratLinkedData, {
       mapInfo,
       bedrockMatchExpanded: true,

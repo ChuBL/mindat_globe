@@ -1,9 +1,10 @@
-import { FeatureCollection, Point } from "geojson";
+import { Feature, FeatureCollection, Point } from "geojson";
 import {
   FilterData,
   IntervalFilterData,
 } from "~/map-interface/app-state/handlers/filters";
 import { SETTINGS } from "../../settings";
+type Dictionary = { [key: string]: any };
 
 export function getExpressionForFilters(
   filters: FilterData[]
@@ -187,7 +188,6 @@ export async function getPBDBData(
     };
   });
 }
-
 
 export async function getMindatData(
   filters: FilterData[],

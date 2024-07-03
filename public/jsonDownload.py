@@ -82,7 +82,7 @@ for i in range(datasets):
     #includes an extra dict key to include range of the datafield
     datadict[str(i)]['range'] = {'min': datadict[str(i)]['results'][0]['id'], 'max': datadict[str(i)]['results'][-1]['id']}
     if i+1 < datasets:
-        datadict[str(i)]['next'] = 'Localities_' + str((i+1)) 
+        datadict[str(i)]['next'] = 'Mindat_Localities_' + str((i+1)) 
     with open(path, 'w') as f:
         json.dump(datadict[str(i)], f, indent=4) 
         f.close()
