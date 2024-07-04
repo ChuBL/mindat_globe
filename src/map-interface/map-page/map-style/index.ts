@@ -308,8 +308,8 @@ const overlayLayers = [
       "circle-color": [
         "case",
         ["boolean", ["feature-state", "hover"], false],
-        "#154974",
-        "#2171b5",
+        "#FF4D3B",
+        "#E9967A",
       ],
       "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 8, 16, 20],
       "circle-stroke-width": [
