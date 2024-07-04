@@ -282,6 +282,8 @@ class VestigialMap extends Component<MapProps, {}> {
           layers: ["mindat-points"],
         });
 
+        //checks that the data exists and that it has an id so it can search the JSON files
+        //if the point clicked has no proper id, it will clear the data from the popout window
         if(collections.length && collections[0].properties.hasOwnProperty("id")){
           let id = collections[0].properties.id
           this.props.runAction({ type: "get-mindat", id });

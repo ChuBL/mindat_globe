@@ -6,8 +6,6 @@ import styles from "./main.module.sass";
 const h = hyper.styled(styles);
 
 export default function PBDBCollections({ data }) {
-  // console.log(typeof(data));
-  // console.log(data);
   if (data == null) return null;
   return h(
     "div.collections",
