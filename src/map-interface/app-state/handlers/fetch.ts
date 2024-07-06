@@ -240,10 +240,12 @@ function mergePBDBResponses(collectionResponse, occurrenceResponse) {
 export async function getMindatPoint(id) {
   let dataset = [];
   let datapoint = {};
+  //path is where you store your data, by default it is stored in public or '/'
+  let path = '/';
 
   //fetch initial mindat_locality file, works best with format found in public/jsondownload.py
   try {
-    const jsonData = await fetch('/Mindat_Localities_0.json');
+    const jsonData = await fetch(path + 'Mindat_Localities_0.json');
     dataset = await jsonData.json();
   } catch (error) {
     console.error('Cannot find mindal Locality data:', error);
@@ -254,7 +256,7 @@ export async function getMindatPoint(id) {
   while(id < dataset['range']['min'] || id > dataset['range']['max']) {
     if('next' in dataset){
       try {
-        const jsonData = await fetch('/' + dataset['next'] + '.json'); // Assuming readJsonFile returns jsonData
+        const jsonData = await fetch(path + dataset['next']); // Assuming readJsonFile returns jsonData
         dataset = await jsonData.json();
       } catch (error) {
         console.error('Error fetching Mindat data:', error);
