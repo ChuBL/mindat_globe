@@ -2,6 +2,7 @@ import { Component, forwardRef } from "react";
 import { SETTINGS } from "../../settings";
 import { mapStyle } from "../map-style";
 import { getPBDBData } from "./filter-helpers";
+import { getMindatData } from "./filter-helpers";
 import h from "@macrostrat/hyper";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -14,6 +15,7 @@ const highlightLayers = [
   { layer: "pbdb-points", source: "pbdb-points" },
   { layer: "pbdb-points-clustered", source: "pbdb-points" },
   { layer: "pbdb-clusters", source: "pbdb-clusters" },
+  { layer: "mindat-points", source: "mindat-points"},
 ];
 
 interface MapProps {
@@ -38,6 +40,7 @@ class VestigialMap extends Component<MapProps, {}> {
 
     // We need to store these for cluster querying...
     this.pbdbPoints = {};
+    this.mindatPoints = {};
 
     // Keep track of unique ids for interaction states
     this.hoverStates = {};
@@ -78,6 +81,9 @@ class VestigialMap extends Component<MapProps, {}> {
       ) {
         this.map.setLayoutProperty(layer.id, "visibility", "visible");
       }
+      if (layer.source === "mindat-points" && mapLayers.has(MapLayer.MINDAT)) {
+        this.map.setLayoutProperty(layer.id, "visibility", "visible")
+      }
       if (layer.source === "columns" && mapLayers.has(MapLayer.COLUMNS)) {
         this.map.setLayoutProperty(layer.id, "visibility", "visible");
       }
@@ -85,6 +91,10 @@ class VestigialMap extends Component<MapProps, {}> {
 
     if (mapLayers.has(MapLayer.FOSSILS)) {
       this.refreshPBDB();
+    }
+
+    if (mapLayers.has(MapLayer.MINDAT)) {
+      this.refreshMindat();
     }
 
     // NO idea why timeout is needed
@@ -121,6 +131,9 @@ class VestigialMap extends Component<MapProps, {}> {
       // Force a hit to the API to refresh
       if (this.props.mapLayers.has(MapLayer.FOSSILS)) {
         this.refreshPBDB();
+      }
+      if (this.props.mapLayers.has(MapLayer.MINDAT)) {
+        this.refreshMindat();
       }
     });
 
@@ -263,6 +276,24 @@ class VestigialMap extends Component<MapProps, {}> {
         }
       }
 
+      //Queries mindat data points for in depth retrieval
+      if(this.props.mapLayers.has(MapLayer.MINDAT)) {
+        let collections = this.map.queryRenderedFeatures(event.point, {
+          layers: ["mindat-points"],
+        });
+
+        //checks that the data exists and that it has an id so it can search the JSON files
+        //if the point clicked has no proper id, it will clear the data from the popout window
+        if(collections.length && collections[0].properties.hasOwnProperty("id")){
+          let id = collections[0].properties.id
+          this.props.runAction({ type: "get-mindat", id });
+        }else{
+          this.props.runAction({ type: "reset-mindat"})
+        }
+      }
+
+    
+
       // Otherwise try to query the geologic map
       let features = this.map.queryRenderedFeatures(event.point, {
         layers: ["burwell_fill", "column_fill", "filtered_column_fill"],
@@ -404,12 +435,18 @@ class VestigialMap extends Component<MapProps, {}> {
         if (nextProps.mapLayers.has(MapLayer.FOSSILS)) {
           this.refreshPBDB();
         }
+        if (nextProps.mapLayers.has(MapLayer.MINDAT)) {
+          this.refreshMindat();
+        }
 
         return false;
       }
 
       if (nextProps.mapLayers.has(MapLayer.FOSSILS)) {
         this.refreshPBDB();
+      }
+      if (nextProps.mapLayers.has(MapLayer.MINDAT)) {
+        this.refreshMindat();
       }
 
       // Update the map styles
@@ -429,7 +466,8 @@ class VestigialMap extends Component<MapProps, {}> {
       zoom,
       maxClusterZoom
     );
-
+    
+    
     // Show or hide the proper PBDB layers
     if (zoom < maxClusterZoom) {
       this.map.getSource("pbdb-clusters").setData(this.pbdbPoints);
@@ -450,6 +488,21 @@ class VestigialMap extends Component<MapProps, {}> {
       //    map.map.setLayoutProperty('pbdb-point-cluster-count', 'visibility', 'visible')
       // map.map.setLayoutProperty("pbdb-points", "visibility", "visible");
     }
+  }
+
+  async refreshMindat() {
+    let bounds = this.map.getBounds();
+    let zoom = this.map.getZoom();
+    this.mindatPoints = await getMindatData(
+      this.props.filters,
+      bounds,
+      zoom
+    );
+
+
+    // Show or hide the mindat layers
+    this.map.getSource("mindat-points").setData(this.mindatPoints);
+    this.map.setLayoutProperty("mindat-points", "visibility", "visible");
   }
 
   // Update the colors of the hexgrids

@@ -56,6 +56,8 @@ const defaultState: CoreState = {
   elevationData: [],
   elevationMarkerLocation: [],
   pbdbData: [],
+  mindatData: [],
+  mindatPointData: null,
   mapIsLoading: false,
   mapCenter: {
     type: null,
@@ -92,12 +94,17 @@ export function coreReducer(
     case "map-layers-changed":
       let columnInfo = state.columnInfo;
       let pbdbData = state.pbdbData;
+      let mindatData = state.mindatData;
+      let mindatPointData = state.mindatPointData;
       if (!action.mapLayers.has(MapLayer.COLUMNS)) columnInfo = null;
       if (!action.mapLayers.has(MapLayer.FOSSILS)) pbdbData = [];
+      if (!action.mapLayers.has(MapLayer.MINDAT)) mindatData = [], mindatPointData = null;
       return {
         ...state,
         columnInfo,
         pbdbData,
+        mindatPointData,
+        mindatData,
       };
     case "toggle-menu":
       const shouldOpen = state.inputFocus || !state.menuOpen;
@@ -334,8 +341,6 @@ export function coreReducer(
       };
       let articles = {};
 
-      console.log(action.data);
-
       for (let i = 0; i < action.data.length; i++) {
         let found = false;
         if (articles[action.data[i].docid]) {
@@ -402,8 +407,17 @@ export function coreReducer(
         infoDrawerOpen: true,
       };
 
+    case "get-mindatPoint-data":
+      return{
+        ...state,
+        mindatPointData: action.data,
+        infoDrawerOpen: true,
+      };
+
     case "reset-pbdb":
       return { ...state, pbdbData: [] };
+    case "reset-mindat":
+      return { ...state, mindatPointData: null };
     case "go-to-place":
       return {
         ...coreReducer(state, { type: "set-input-focus", inputFocus: false }),

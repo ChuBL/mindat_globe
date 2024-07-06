@@ -235,3 +235,60 @@ function mergePBDBResponses(collectionResponse, occurrenceResponse) {
     return [];
   }
 }
+
+//retrieves a mindat entry based on id
+export async function getMindatPoint(id) {
+  let dataset = [];
+  let datapoint = {};
+  //path is where you store your data, by default it is stored in public or '/'
+  let path = '/';
+
+  //fetch initial mindat_locality file, works best with format found in public/jsondownload.py
+  try {
+    const jsonData = await fetch(path + 'Mindat_Localities_0.json');
+    dataset = await jsonData.json();
+  } catch (error) {
+    console.error('Cannot find mindal Locality data:', error);
+  }
+
+  //If the data is split into seperate files, checks if the id is within the range so it doesn't need to iterate entire file
+  //If id is not present, traverses to the next file since they are formated like a linked list.
+  while(id < dataset['range']['min'] || id > dataset['range']['max']) {
+    if('next' in dataset){
+      try {
+        const jsonData = await fetch(path + dataset['next']); // Assuming readJsonFile returns jsonData
+        dataset = await jsonData.json();
+      } catch (error) {
+        console.error('Error fetching Mindat data:', error);
+      }    
+    } else {
+      console.error('Missing object in DataSet');
+    }
+  }
+
+  //checks which half of the dataset the id would be on, arguably neccessary, but cuts average response time by ~half
+  if(id < (dataset['range']['max']/2)){
+    for (let i = 0; i < dataset['results'].length; i++) {
+      if (dataset['results'][i]['id'] == id) {
+        datapoint = dataset['results'][i];
+      }
+    }
+  } else {
+    for (let i = dataset['results'].length-1; i > 0; i--) {
+      if (dataset['results'][i]['id'] == id) {
+        datapoint = dataset['results'][i];
+      }
+    }
+  }
+
+  //return in type of geojson, might have to change this if we find out clustering
+  return {
+    type: "Feature",
+    properties: datapoint,
+    id: id,
+    geometry: {
+      type: "Point",
+      coordinates: [null, null],
+    },
+  };
+}

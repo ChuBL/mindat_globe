@@ -13,6 +13,7 @@ export enum MapLayer {
   FOSSILS = "fossils",
   BEDROCK = "bedrock",
   SOURCES = "sources",
+  MINDAT = "mindat",
   LABELS = "labels",
   LINE_SYMBOLS = "line-symbols",
 }

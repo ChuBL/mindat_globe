@@ -1,9 +1,10 @@
-import { FeatureCollection, Point } from "geojson";
+import { Feature, FeatureCollection, Point } from "geojson";
 import {
   FilterData,
   IntervalFilterData,
 } from "~/map-interface/app-state/handlers/filters";
 import { SETTINGS } from "../../settings";
+type Dictionary = { [key: string]: any };
 
 export function getExpressionForFilters(
   filters: FilterData[]
@@ -186,4 +187,74 @@ export async function getPBDBData(
       }),
     };
   });
+}
+
+export async function getMindatData(
+  filters: FilterData[],
+  bounds: mapboxgl.LngLatBounds,
+  zoom: number,
+): Promise<FeatureCollection<Point, any>> {
+
+  // Make sure lngs are between -180 and 180
+  const lngMin = bounds._sw.lng < -180 ? -180 : bounds._sw.lng;
+  const lngMax = bounds._ne.lng > 180 ? 180 : bounds._ne.lng;
+  // If more than one time filter is present, multiple requests are needed
+
+  /* Currently there is a limitation in the globe for the getBounds function that
+  resolves incorrect latitude ranges for low zoom levels.
+  - https://docs.mapbox.com/mapbox-gl-js/guides/globe/#limitations-of-globe
+  - https://github.com/mapbox/mapbox-gl-js/issues/11795
+  -   https://github.com/UW-Macrostrat/web/issues/68
+
+  This is a workaround for that issue.
+  */
+  let latMin = bounds._sw.lat;
+  let latMax = bounds._ne.lat;
+
+  if (zoom < 5) {
+    latMin = Math.max(Math.min(latMin, latMin * 5), -85);
+    latMax = Math.min(Math.max(latMax, latMax * 5), 85);
+  }
+
+  
+  let parsedData = []
+
+  //grabs the data from the public directory.
+  //if the data is not there, run "jsonDownload.py" to install the necessary files
+  try {
+    const jsonData = await fetch('/Mindat_data_partial.json');
+    parsedData = await jsonData.json();
+  } catch (error) {
+    console.error('Error fetching Mindat data:', error);
+  }
+
+  //filters out all of the data that is not within the correct range.
+  //I am sure there is some time optimization that can happen here.
+  let filteredData = [];
+  try {
+    parsedData.results.forEach((dict) => {
+      if(dict.longitude > lngMin && dict.longitude < lngMax && dict.latitude > latMin && dict.latitude < latMax){
+        filteredData.push(dict);
+      }
+    });
+  } catch(error) {
+    console.error("The type of jsonData is", typeof(parsedData), "The error is this", error);
+  }
+
+
+  //returns the datapoints in a featureCollection geoJSON, this allows it to be plotted by other functions
+  return {
+    type: "FeatureCollection",
+    features: filteredData.map((f, i) => {
+      return {
+        type: "Feature",
+        properties: f,
+        id: i,
+        geometry: {
+          type: "Point",
+          coordinates: [f.longitude, f.latitude],
+        },
+      };
+    }),
+  };
 }
