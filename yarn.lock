@@ -4171,8 +4171,10 @@ __metadata:
     "@types/geojson": ^7946.0.10
     "@types/node": ^13.13.5
     "@types/react-redux": ^7.1.7
+    "@types/sql.js": ^1.4.9
     "@visx/axis": ^2.14.0
     "@visx/scale": ^2.2.2
+    "@wasm-tool/wasm-pack-plugin": ^1.7.0
     axios: ^0.25.0
     babel-loader: ^8.0.4
     babel-polyfill: ^6.26.0
@@ -7766,6 +7768,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/emscripten@npm:*":
+  version: 1.39.13
+  resolution: "@types/emscripten@npm:1.39.13"
+  checksum: 6a50f43a90db981e088c76219578a8e9eea0add3ed99d2daed3dfe8f8b755557b89ea5aea0166db2e9399882e109971f1724636101850a46cee51dc4c9337b1f
+  languageName: node
+  linkType: hard
+
 "@types/eslint-scope@npm:^3.7.3":
   version: 3.7.4
   resolution: "@types/eslint-scope@npm:3.7.4"
@@ -8345,6 +8354,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/sql.js@npm:^1.4.9":
+  version: 1.4.9
+  resolution: "@types/sql.js@npm:1.4.9"
+  dependencies:
+    "@types/emscripten": "*"
+    "@types/node": "*"
+  checksum: a233c787e11ae96c2447ccbf8c64cde9c2217806b82a8b36bb409b3240fe8b4dcf89007f12e9465340fd9d9d2ae8e3720ac9dcb46f67ce0f8f40a33fd4a0397e
+  languageName: node
+  linkType: hard
+
 "@types/stack-utils@npm:^2.0.0":
   version: 2.0.3
   resolution: "@types/stack-utils@npm:2.0.3"
@@ -8586,6 +8605,18 @@ __metadata:
   peerDependencies:
     react: ^16.3.0-0
   checksum: 5daf906f81d487dc114e3f7a5d007bbe56cd0b94283b4f377e2d648a22e9560527fd929229ae2c2cd360768049c72399d6b999445b0c7c0b1fe2b370bcd3a2d0
+  languageName: node
+  linkType: hard
+
+"@wasm-tool/wasm-pack-plugin@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "@wasm-tool/wasm-pack-plugin@npm:1.7.0"
+  dependencies:
+    chalk: ^2.4.1
+    command-exists: ^1.2.7
+    watchpack: ^2.1.1
+    which: ^2.0.2
+  checksum: b0a09f70827b262c4b4689296aae712cc7d9fb742e32eb7e7b720a5b45be1d256864c84c37c8f97de4c762cdae9c35be4a37cdea6832281056921edf4944aea4
   languageName: node
   linkType: hard
 
@@ -11467,6 +11498,13 @@ __metadata:
   version: 2.0.3
   resolution: "comma-separated-tokens@npm:2.0.3"
   checksum: e3bf9e0332a5c45f49b90e79bcdb4a7a85f28d6a6f0876a94f1bb9b2bfbdbbb9292aac50e1e742d8c0db1e62a0229a106f57917e2d067fca951d81737651700d
+  languageName: node
+  linkType: hard
+
+"command-exists@npm:^1.2.7":
+  version: 1.2.9
+  resolution: "command-exists@npm:1.2.9"
+  checksum: 729ae3d88a2058c93c58840f30341b7f82688a573019535d198b57a4d8cb0135ced0ad7f52b591e5b28a90feb2c675080ce916e56254a0f7c15cb2395277cac3
   languageName: node
   linkType: hard
 
@@ -26546,15 +26584,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^18.2.0":
-  version: 18.2.0
-  resolution: "react-dom@npm:18.2.0"
+"react-dom@npm:^18.0.0":
+  version: 18.3.1
+  resolution: "react-dom@npm:18.3.1"
   dependencies:
     loose-envify: ^1.1.0
-    scheduler: ^0.23.0
+    scheduler: ^0.23.2
   peerDependencies:
-    react: ^18.2.0
-  checksum: 7d323310bea3a91be2965f9468d552f201b1c27891e45ddc2d6b8f717680c95a75ae0bc1e3f5cf41472446a2589a75aed4483aee8169287909fcd59ad149e8cc
+    react: ^18.3.1
+  checksum: 298954ecd8f78288dcaece05e88b570014d8f6dce5db6f66e6ee91448debeb59dcd31561dddb354eee47e6c1bb234669459060deb238ed0213497146e555a0b9
   languageName: node
   linkType: hard
 
@@ -27076,22 +27114,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^17.0.2":
-  version: 17.0.2
-  resolution: "react@npm:17.0.2"
+"react@npm:^18.0.0":
+  version: 18.3.1
+  resolution: "react@npm:18.3.1"
   dependencies:
     loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-  checksum: b254cc17ce3011788330f7bbf383ab653c6848902d7936a87b09d835d091e3f295f7e9dd1597c6daac5dc80f90e778c8230218ba8ad599f74adcc11e33b9d61b
-  languageName: node
-  linkType: hard
-
-"react@npm:^18.2.0":
-  version: 18.2.0
-  resolution: "react@npm:18.2.0"
-  dependencies:
-    loose-envify: ^1.1.0
-  checksum: 88e38092da8839b830cda6feef2e8505dec8ace60579e46aa5490fc3dc9bba0bd50336507dc166f43e3afc1c42939c09fe33b25fae889d6f402721dcd78fca1b
+  checksum: a27bcfa8ff7c15a1e50244ad0d0c1cb2ad4375eeffefd266a64889beea6f6b64c4966c9b37d14ee32d6c9fcd5aa6ba183b6988167ab4d127d13e7cb5b386a376
   languageName: node
   linkType: hard
 
@@ -28390,12 +28418,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.23.0":
-  version: 0.23.0
-  resolution: "scheduler@npm:0.23.0"
+"scheduler@npm:^0.23.2":
+  version: 0.23.2
+  resolution: "scheduler@npm:0.23.2"
   dependencies:
     loose-envify: ^1.1.0
-  checksum: d79192eeaa12abef860c195ea45d37cbf2bbf5f66e3c4dcd16f54a7da53b17788a70d109ee3d3dde1a0fd50e6a8fc171f4300356c5aee4fc0171de526bf35f8a
+  checksum: 3e82d1f419e240ef6219d794ff29c7ee415fbdc19e038f680a10c067108e06284f1847450a210b29bbaf97b9d8a97ced5f624c31c681248ac84c80d56ad5a2c4
   languageName: node
   linkType: hard
 
@@ -31929,6 +31957,16 @@ __metadata:
   bin:
     watch: ./cli.js
   checksum: 8efc9b0f1b71ab854d121f70b361aea6032abf0bc7a28ec68f64be5a9e939086ffbf53df2370cd77c71e75e2c39d0025d59f6e0a52779a6748c3ad6863889094
+  languageName: node
+  linkType: hard
+
+"watchpack@npm:^2.1.1":
+  version: 2.4.1
+  resolution: "watchpack@npm:2.4.1"
+  dependencies:
+    glob-to-regexp: ^0.4.1
+    graceful-fs: ^4.1.2
+  checksum: 5b0179348655dcdf19cac7cb4ff923fdc024d630650c0bf6bec8899cf47c60e19d4f810a88dba692ed0e7f684cf0fcffea86efdbf6c35d81f031e328043b7fab
   languageName: node
   linkType: hard
 

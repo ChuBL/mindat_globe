@@ -31,6 +31,7 @@
     "@babel/preset-typescript": "^7.9.0",
     "@macrostrat/revision-info-webpack": "^1.0.0",
     "@types/node": "^13.13.5",
+    "@types/sql.js": "^1.4.9",
     "babel-loader": "^8.0.4",
     "babel-polyfill": "^6.26.0",
     "copy-webpack-plugin": "^9.0.1",
@@ -71,6 +72,7 @@
     "@types/react-redux": "^7.1.7",
     "@visx/axis": "^2.14.0",
     "@visx/scale": "^2.2.2",
+    "@wasm-tool/wasm-pack-plugin": "^1.7.0",
     "axios": "^0.25.0",
     "chroma-js": "^2.4.2",
     "classnames": "^2.2.6",
@@ -101,6 +103,10 @@
     "transition-hook": "^1.5.2",
     "use-react-router-breadcrumbs": "^3.2.1",
     "use-resize-observer": "^9.1.0"
+  },
+  "resolutions": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "prettier": {},
   "packageManager": "yarn@3.2.2"
