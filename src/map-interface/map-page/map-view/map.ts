@@ -480,6 +480,8 @@ class VestigialMap extends Component<MapProps, {}> {
       zoom
     );
 
+    console.log(this.mindatPoints)
+
     // Show or hide the proper PBDB layers
     this.map.getSource("mindat-points").setData(this.mindatPoints);
     this.map.setLayoutProperty("mindat-points", "visibility", "visible");

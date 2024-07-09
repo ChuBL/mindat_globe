@@ -266,7 +266,7 @@ export async function getMindatData(
         id: i,
         geometry: {
           type: "Point",
-          coordinates: [f.lng, f.lat],
+          coordinates: [f.longitude, f.latitude],
         },
       };
     }),
