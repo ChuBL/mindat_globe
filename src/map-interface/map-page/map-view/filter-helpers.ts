@@ -1,9 +1,10 @@
-import { FeatureCollection, Point } from "geojson";
+import { Feature, FeatureCollection, Point } from "geojson";
 import {
   FilterData,
   IntervalFilterData,
 } from "~/map-interface/app-state/handlers/filters";
 import { SETTINGS } from "../../settings";
+type Dictionary = { [key: string]: any };
 
 export function getExpressionForFilters(
   filters: FilterData[]
@@ -188,27 +189,12 @@ export async function getPBDBData(
   });
 }
 
-
 export async function getMindatData(
   filters: FilterData[],
   bounds: mapboxgl.LngLatBounds,
   zoom: number,
 ): Promise<FeatureCollection<Point, any>> {
-  // One for time, one for everything else because
-  // time filters require a separate request for each filter
-  let timeQuery = [];
-  let queryString = [];
 
-
-  // lith filters broken on pbdb (500 error returned)
-  // if (map.lithFilters.length) {
-  //   let filters = map.lithFilters.filter((f) => f != "sedimentary");
-  //   if (filters.length) {
-  //     queryString.push(`lithology=${filters.join(",")}`);
-  //   }
-  // }
-
-  let urls = [];
   // Make sure lngs are between -180 and 180
   const lngMin = bounds._sw.lng < -180 ? -180 : bounds._sw.lng;
   const lngMax = bounds._ne.lng > 180 ? 180 : bounds._ne.lng;
@@ -230,23 +216,21 @@ export async function getMindatData(
     latMax = Math.min(Math.max(latMax, latMax * 5), 85);
   }
 
+  
   let parsedData = []
 
+  //grabs the data from the public directory.
+  //if the data is not there, run "jsonDownload.py" to install the necessary files
   try {
-    const jsonData = await fetch('/Mindat_data_partial.json'); // Assuming readJsonFile returns jsonData
+    const jsonData = await fetch('/Mindat_data_partial.json');
     parsedData = await jsonData.json();
   } catch (error) {
     console.error('Error fetching Mindat data:', error);
   }
 
-  //const jsonData = await readJsonFile('~/src/data/Mindat_data_partial.json')['results'];
+  //filters out all of the data that is not within the correct range.
+  //I am sure there is some time optimization that can happen here.
   let filteredData = [];
-
-  // const filteredData = jsonData.filter((dict) => {
-  //   return dict.longitude > lngMin && dict.longitude < lngMax &&
-  //          dict.latitude > latMin && dict.latitude < latMax;
-  // });
-
   try {
     parsedData.results.forEach((dict) => {
       if(dict.longitude > lngMin && dict.longitude < lngMax && dict.latitude > latMin && dict.latitude < latMax){
@@ -257,6 +241,8 @@ export async function getMindatData(
     console.error("The type of jsonData is", typeof(parsedData), "The error is this", error);
   }
 
+
+  //returns the datapoints in a featureCollection geoJSON, this allows it to be plotted by other functions
   return {
     type: "FeatureCollection",
     features: filteredData.map((f, i) => {

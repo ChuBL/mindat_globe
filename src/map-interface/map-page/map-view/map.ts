@@ -276,6 +276,24 @@ class VestigialMap extends Component<MapProps, {}> {
         }
       }
 
+      //Queries mindat data points for in depth retrieval
+      if(this.props.mapLayers.has(MapLayer.MINDAT)) {
+        let collections = this.map.queryRenderedFeatures(event.point, {
+          layers: ["mindat-points"],
+        });
+
+        //checks that the data exists and that it has an id so it can search the JSON files
+        //if the point clicked has no proper id, it will clear the data from the popout window
+        if(collections.length && collections[0].properties.hasOwnProperty("id")){
+          let id = collections[0].properties.id
+          this.props.runAction({ type: "get-mindat", id });
+        }else{
+          this.props.runAction({ type: "reset-mindat"})
+        }
+      }
+
+    
+
       // Otherwise try to query the geologic map
       let features = this.map.queryRenderedFeatures(event.point, {
         layers: ["burwell_fill", "column_fill", "filtered_column_fill"],
@@ -448,7 +466,8 @@ class VestigialMap extends Component<MapProps, {}> {
       zoom,
       maxClusterZoom
     );
-
+    
+    
     // Show or hide the proper PBDB layers
     if (zoom < maxClusterZoom) {
       this.map.getSource("pbdb-clusters").setData(this.pbdbPoints);
@@ -483,6 +502,8 @@ class VestigialMap extends Component<MapProps, {}> {
     console.log(this.mindatPoints)
 
     // Show or hide the proper PBDB layers
+
+    // Show or hide the mindat layers
     this.map.getSource("mindat-points").setData(this.mindatPoints);
     this.map.setLayoutProperty("mindat-points", "visibility", "visible");
   }

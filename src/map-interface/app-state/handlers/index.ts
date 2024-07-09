@@ -5,6 +5,7 @@ import {
   runMapQuery,
   asyncGetElevation,
   getPBDBData,
+  getMindatPoint,
   base,
   fetchAllColumns,
 } from "./fetch";
@@ -264,11 +265,17 @@ async function actionRunner(
       };
     case "get-pbdb":
       let collection_nos = action.collection_nos;
-      dispatch({ type: "start-pdbd-query" });
+      dispatch({ type: "start-pbdb-query" });
       return {
         type: "received-pbdb-query",
         data: await getPBDBData(collection_nos),
       };
+    case "get-mindat":
+      let id = action.id
+      return {
+        type: "get-mindatPoint-data",
+        data: await getMindatPoint(id),
+      }
     default:
       return action;
   }
