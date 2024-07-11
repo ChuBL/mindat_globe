@@ -62,7 +62,7 @@ export async function fetchFilteredColumns(providedFilters) {
 
 
 export async function fetchPaleoCoast(age) {
-  let url = `${paleoCoastUrl}&${age}`;
+  let url = `${paleoCoastUrl}&&time=${age}`;
   let res = await axios.get(url, {responseType: "json"});
   return res.data;
 }
@@ -131,9 +131,8 @@ export async function fetchAllColumns(): Promise<ColumnGeoJSONRecord[]> {
   return res.data.features;
 }
 
-export async function fetchAllCoasts(): Promise<ColumnGeoJSONRecord[]> {
-  let age = 140;
-  let url = `${paleoCoastUrl}&${age}`;
+export async function fetchAllCoasts(age): Promise<ColumnGeoJSONRecord[]> {
+  let url = `${paleoCoastUrl}&time=${age}`;
   let res = await axios.get(url, {responseType: "json"});
 
   return res.data.features;

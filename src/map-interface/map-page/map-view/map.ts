@@ -16,7 +16,7 @@ const highlightLayers = [
   { layer: "pbdb-points-clustered", source: "pbdb-points" },
   { layer: "pbdb-clusters", source: "pbdb-clusters" },
   { layer: "mindat-points", source: "mindat-points"},
-  { layer: "paleoCoast", source: "paleoCoast"},
+  { layer: "coasts", source: "coasts"},
 ];
 
 interface MapProps {
