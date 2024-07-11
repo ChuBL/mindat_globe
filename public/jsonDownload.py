@@ -8,17 +8,20 @@ gr = openmindat.GeomaterialRetriever()
 lr = openmindat.LocalitiesRetriever()
 
 #important fields are the data fields to be included when viewing a specific datapoint.
-importantFields = "id,txt,description_short,elements,links"
+fullDataFields = "id,txt,description_short,elements,links"
+partialDataFields = 'id,longitude,latitude'
+
 
 #Running the mindat queries to get needed data
 #if the query fails but Mindat_data_partial ran correctly you can comment out to save time
-lnglatData = lr.fields('id,longitude,latitude').get_dict()
+lnglatData = lr.fields(partialDataFields).get_dict()
 
 #filters the data to remove entries without valid longitude and latitudes
 validIds = []
 filteredData = {'results': []}
 for x in lnglatData['results']:
     if x['longitude'] != 0 and x['latitude'] != 0:
+        #x['elements'] = x['elements'][1:-1].split('-') #only needed if elements field is included
         filteredData['results'].append(x)
         validIds.append(x['id'])
 
@@ -26,11 +29,14 @@ for x in lnglatData['results']:
 with open('public/Mindat_data_partial.json', 'w+') as f:
     json.dump(filteredData, f, indent=4) 
     f.close()
+  
+#For when you only want mindat partial  
+exit()
 
 #numDataset dictates how many final sets of data there will be. 
 #There needs to be a good balance between not having too many data sets and not having too many items per set
 #experiment later to see if time can be cut down based on numDataset.
-rawdata = lr.fields(importantFields).get_dict()
+rawdata = lr.fields(fullDataFields).get_dict()
 numDataset = 5
 
 #initializes the datasets.

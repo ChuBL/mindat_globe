@@ -71,8 +71,17 @@ function setMapStyle(class_, map, mapStyle, props) {
         ) {
           map.getSource("filteredColumns").setData(props.filteredColumns);
         }
+        
         if (visibility != showFilteredColumns) {
           map.setLayoutProperty(layer.id, "visibility", showFilteredColumns);
+        }
+      } else if (layer.source === "paleoCoast") {
+        const showCoast =
+          mapLayers.has(MapLayer.PALEOCOAST) && !props.filters.length
+            ? "visible"
+            : "none";
+        if (visibility !== showCoast) {
+          map.setLayoutProperty(layer.id, "visibility", showCoast);
         }
       }
     }

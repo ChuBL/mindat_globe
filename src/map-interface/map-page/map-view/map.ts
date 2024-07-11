@@ -16,6 +16,7 @@ const highlightLayers = [
   { layer: "pbdb-points-clustered", source: "pbdb-points" },
   { layer: "pbdb-clusters", source: "pbdb-clusters" },
   { layer: "mindat-points", source: "mindat-points"},
+  { layer: "paleoCoast", source: "paleoCoast"},
 ];
 
 interface MapProps {
@@ -85,6 +86,9 @@ class VestigialMap extends Component<MapProps, {}> {
         this.map.setLayoutProperty(layer.id, "visibility", "visible")
       }
       if (layer.source === "columns" && mapLayers.has(MapLayer.COLUMNS)) {
+        this.map.setLayoutProperty(layer.id, "visibility", "visible");
+      }
+      if (layer.source === "coasts" && mapLayers.has(MapLayer.PALEOCOAST)) {
         this.map.setLayoutProperty(layer.id, "visibility", "visible");
       }
     });
@@ -291,12 +295,11 @@ class VestigialMap extends Component<MapProps, {}> {
           this.props.runAction({ type: "reset-mindat"})
         }
       }
-
     
 
       // Otherwise try to query the geologic map
       let features = this.map.queryRenderedFeatures(event.point, {
-        layers: ["burwell_fill", "column_fill", "filtered_column_fill"],
+        layers: ["burwell_fill", "column_fill", "filtered_column_fill", "coastline_fill"],
       });
 
       let burwellFeatures = features
@@ -431,6 +434,15 @@ class VestigialMap extends Component<MapProps, {}> {
             }
           });
         }
+
+        if (this.props.mapLayers.has(MapLayer.PALEOCOAST)) {
+          mapStyle.layers.forEach((layer) => {
+            if (layer.source === "coasts") {
+              this.map.setLayoutProperty(layer.id, "visibility", "visible");
+            }
+          });
+        }
+
 
         if (nextProps.mapLayers.has(MapLayer.FOSSILS)) {
           this.refreshPBDB();

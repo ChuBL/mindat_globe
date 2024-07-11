@@ -29,7 +29,7 @@ function useAppActions(): (action: AppAction) => Promise<void> {
       // Handle the cancel error specifically if it is from Axios or a similar library
       if (axios.isCancel(error)) {
         console.log('Request canceled:', error.message);
-      }
+      } 
     }
   };
 }

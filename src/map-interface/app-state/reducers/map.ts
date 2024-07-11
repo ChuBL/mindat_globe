@@ -10,6 +10,7 @@ export enum MapLayer {
   SATELLITE = "satellite",
   LINES = "lines",
   COLUMNS = "columns",
+  PALEOCOAST = "paleoCoast",
   FOSSILS = "fossils",
   BEDROCK = "bedrock",
   SOURCES = "sources",

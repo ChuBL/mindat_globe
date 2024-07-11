@@ -164,6 +164,7 @@ function MapContainer(props) {
   const {
     filters,
     filteredColumns,
+    filteredPaleoCoast,
     mapLayers,
     mapCenter,
     elevationChartOpen,
@@ -278,6 +279,28 @@ function MapContainer(props) {
     });
   }, [mapRef.current, allColumns, mapInitialized]);
 
+  const allCoasts = useAppState((state) => state.core.allCoasts);
+  useEffect(() => {
+    const map = mapRef.current;
+    const ncols = allCoasts?.length ?? 0;
+    if (map == null || ncols == 0) return;
+    // Set source data for coasts
+    map.once("style.load", () => {
+      const src = map.getSource("coasts");
+      if (src == null) return;
+      src.setData({
+        type: "FeatureCollection",
+        features: allCoasts ?? [],
+      });
+    });
+    const src = map.getSource("coasts");
+    if (src == null) return;
+    src.setData({
+      type: "FeatureCollection",
+      features: allCoasts ?? [],
+    });
+  }, [mapRef.current, allCoasts, mapInitialized]);
+
   useEffect(() => {
     // Get the current value of the map. Useful for gradually moving away
     // from class component
@@ -304,6 +327,13 @@ function MapContainer(props) {
   useEffect(() => {
     if (mapLayers.has(MapLayer.COLUMNS)) {
       runAction({ type: "get-filtered-columns" });
+    }
+    runAction({ type: "map-layers-changed", mapLayers });
+  }, [filters, mapLayers]);
+
+  useEffect(() => {
+    if (mapLayers.has(MapLayer.PALEOCOAST)) {
+      runAction({ type: "get-paleo-coast" });
     }
     runAction({ type: "map-layers-changed", mapLayers });
   }, [filters, mapLayers]);
@@ -359,6 +389,7 @@ function MapContainer(props) {
     h(VestigialMap, {
       filters,
       filteredColumns,
+      filteredPaleoCoast,
       // Recreate the set every time to force a re-render
       mapLayers,
       mapCenter,

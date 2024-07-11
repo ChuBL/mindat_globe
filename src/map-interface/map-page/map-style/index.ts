@@ -52,6 +52,14 @@ const overlaySources = {
       features: [],
     },
   },
+  coasts: {
+    type: "geojson",
+    generateId: true,
+    data: {
+      type: "FeatureCollection",
+      features: [],
+    },
+  },
   elevationPoints: {
     type: "geojson",
     data: {
@@ -134,6 +142,35 @@ const overlayLayers = [
       visibility: "none",
     },
   },
+  {
+  id: "coastline_fill",
+  type: "fill",
+  source: "coasts",
+  paint: {
+    "fill-color": "#777777",
+    "fill-opacity": 0.6,
+  },
+  layout: {
+    visibility: "none",
+  },
+},
+{
+  id: "coastline_stroke",
+  type: "line",
+  source: "coasts",
+  paint: {
+    "line-color": "#777777",
+    "line-width": {
+      stops: [
+        [0, 1],
+        [10, 2],
+      ],
+    },
+  },
+  layout: {
+    visibility: "none",
+  },
+},
   {
     id: "elevationLine",
     type: "line",

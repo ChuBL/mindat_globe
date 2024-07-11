@@ -108,6 +108,11 @@ const LayerList = (props) => {
         icon: MindatIcon,
       }),
       h(LayerButton, {
+        name: "Paleo Coastline",
+        layer: MapLayer.PALEOCOAST,
+        icon: MindatIcon,
+      }),
+      h(LayerButton, {
         name: "Satellite",
         layer: MapLayer.SATELLITE,
         icon: "satellite",

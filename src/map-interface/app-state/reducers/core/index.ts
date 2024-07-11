@@ -21,7 +21,9 @@ const defaultState: CoreState = {
   initialLoadComplete: false,
   contextPanelOpen: false,
   allColumns: null,
+  allCoasts: null,
   allColumnsCancelToken: null,
+  coasts: null,
   menuOpen: false,
   aboutOpen: false,
   infoDrawerOpen: false,
@@ -66,6 +68,7 @@ const defaultState: CoreState = {
   filtersOpen: false,
   filters: [],
   filteredColumns: {},
+  paleoCoast: {},
   data: [],
   showExperimentsPanel: false,
   mapPosition: {
@@ -271,6 +274,9 @@ export function coreReducer(
     case "set-all-columns":
       return { ...state, allColumns: action.columns };
 
+    case "set-all-coasts":
+      return { ...state, allCoasts: action.coasts };
+
     case "received-column-query":
       // summarize units
       if (state.allColumns == null || state.allColumns.length == 0) {
@@ -431,6 +437,11 @@ export function coreReducer(
         ...state,
         filteredColumns: action.columns,
       };
+    case "update-paleo-coast":
+      return {
+        ...state,
+        paleoCoast: action.paleoCoast,
+      }
     case "request-data":
       return { ...state, isFetching: true };
     case "recieve-data":

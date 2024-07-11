@@ -1,5 +1,6 @@
 import {
   fetchFilteredColumns,
+  fetchPaleoCoast,
   handleXDDQuery,
   runColumnQuery,
   runMapQuery,
@@ -8,6 +9,7 @@ import {
   getMindatPoint,
   base,
   fetchAllColumns,
+  fetchAllCoasts,
 } from "./fetch";
 import { AppAction, AppState } from "../reducers";
 import axios from "axios";
@@ -87,7 +89,12 @@ async function actionRunner(
       const { mapLayers } = action;
       if (mapLayers.has(MapLayer.COLUMNS) && state.core.allColumns == null) {
         const columns = await fetchAllColumns();
+        // console.log(columns);
         return { type: "set-all-columns", columns };
+      } else if (mapLayers.has(MapLayer.PALEOCOAST) && state.core.allCoasts == null) {
+        const coasts = await fetchAllCoasts();
+        // console.log(coasts);
+        return { type: "set-all-coasts", coasts };
       } else {
         return null;
       }
@@ -171,6 +178,12 @@ async function actionRunner(
       return {
         type: "update-column-filters",
         columns: await fetchFilteredColumns(coreState.filters),
+      };
+    case "get-paleo-coast":
+      let age = 200;
+      return {
+        type: "update-paleo-coast",
+        paleoCoast: await fetchPaleoCoast(age),
       };
     case "map-query": {
       const { lng, lat, z } = action;

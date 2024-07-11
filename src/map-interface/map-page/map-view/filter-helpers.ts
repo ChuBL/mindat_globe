@@ -1,4 +1,4 @@
-import { Feature, FeatureCollection, Point } from "geojson";
+import { Feature, FeatureCollection, Geometry, Point } from "geojson";
 import {
   FilterData,
   IntervalFilterData,
