@@ -505,12 +505,15 @@ class VestigialMap extends Component<MapProps, {}> {
   }
 
   async refreshMindat() {
+    const { mapLayers } = this.props;
     let bounds = this.map.getBounds();
     let zoom = this.map.getZoom();
+    let age = mapLayers.has(MapLayer.PALEOCOAST) ? 50 : null;
     this.mindatPoints = await getMindatData(
       this.props.filters,
       bounds,
       zoom,
+      age,
     );
 
     console.log(this.mindatPoints)

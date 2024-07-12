@@ -223,15 +223,15 @@ export async function getMindatData(
   }
   
   if(age){
-    const url = `${paleoCoastUrl}&points=${lngMin},${lngMax},${latMin},${latMax}&time=${age}&reverse`;
+    const url = `${paleoCoastUrl}&points=${lngMin},${latMin},${lngMin},${latMax},${lngMax},${latMin},${lngMax},${latMax}&time=${age}&reverse`;
     let res = await axios.get(url, { responseType: "json" });
 
-    // console.log(`Before: ${lngMin},${lngMax},${latMin},${latMax}`);
-    lngMin = res.data.coordinates[0][0];
-    lngMax = res.data.coordinates[0][1];
-    latMin = res.data.coordinates[1][0];
-    latMax = res.data.coordinates[1][1];
-    // console.log(`After: ${lngMin},${lngMax},${latMin},${latMax}`);
+    console.log(`Before: ${lngMin},${lngMax},${latMin},${latMax}`);
+    lngMin = (res.data.coordinates[0][0]+res.data.coordinates[1][0])/2;
+    lngMax = (res.data.coordinates[2][0]+res.data.coordinates[3][0])/2;
+    latMin = (res.data.coordinates[0][1]+res.data.coordinates[2][1])/2;
+    latMax = (res.data.coordinates[1][1]+res.data.coordinates[3][1])/2;
+    console.log(`After: ${lngMin},${lngMax},${latMin},${latMax}`);
   }
   
   let parsedData = []
@@ -266,16 +266,19 @@ export async function getMindatData(
   if(age && coordinates.length > 0){
     const coordStr = coordinates.join(',');
     const url = `${paleoCoastUrl}&points=${coordStr}&time=${age}`;
-    console.log(url);
-    let res = await axios.get(url, { responseType: "json" })
+    try{
+      let res = await axios.get(url, { responseType: "json" })
 
-    for(let i = 0; i < filteredData.length; i++){
-      filteredData[i].longitude = res.data.coordinates[i][0];
-      filteredData[i].latitude = res.data.coordinates[i][1];
+      for(let i = 0; i < filteredData.length; i++){
+        filteredData[i].longitude = res.data.coordinates[i][0];
+        filteredData[i].latitude = res.data.coordinates[i][1];
+      }
+    } catch (error) {
+      console.error("Issue gathering new point data, this can occur because the url is too long: ", error);
     }
   }
 
-  console.log(filteredData);
+  // console.log(filteredData);
 
   //returns the datapoints in a featureCollection geoJSON, this allows it to be plotted by other functions
   return {
