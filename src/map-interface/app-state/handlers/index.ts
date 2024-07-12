@@ -33,7 +33,7 @@ async function actionRunner(
   action: AppAction,
   dispatch = null
 ): Promise<AppAction | void> {
-  const age = 200;
+  const age = 50;
   const coreState = state.core;
   switch (action.type) {
     case "get-initial-map-state": {

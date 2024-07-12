@@ -75,12 +75,13 @@ function setMapStyle(class_, map, mapStyle, props) {
         if (visibility != showFilteredColumns) {
           map.setLayoutProperty(layer.id, "visibility", showFilteredColumns);
         }
-      } else if (layer.source === "paleoCoast") {
+      } else if (layer.source === "coasts") {
         const showCoast =
           mapLayers.has(MapLayer.PALEOCOAST) && !props.filters.length
             ? "visible"
             : "none";
         if (visibility !== showCoast) {
+          console.log(visibility);
           map.setLayoutProperty(layer.id, "visibility", showCoast);
         }
       }

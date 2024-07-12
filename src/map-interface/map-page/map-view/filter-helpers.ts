@@ -4,6 +4,9 @@ import {
   IntervalFilterData,
 } from "~/map-interface/app-state/handlers/filters";
 import { SETTINGS } from "../../settings";
+import axios from "axios";
+
+const paleoCoastUrl = `${SETTINGS.coastlinePointDomain}?&model=SETON2012`;
 type Dictionary = { [key: string]: any };
 
 export function getExpressionForFilters(
@@ -193,11 +196,14 @@ export async function getMindatData(
   filters: FilterData[],
   bounds: mapboxgl.LngLatBounds,
   zoom: number,
+  age = null,
 ): Promise<FeatureCollection<Point, any>> {
 
+
+
   // Make sure lngs are between -180 and 180
-  const lngMin = bounds._sw.lng < -180 ? -180 : bounds._sw.lng;
-  const lngMax = bounds._ne.lng > 180 ? 180 : bounds._ne.lng;
+  let lngMin = bounds._sw.lng < -180 ? -180 : bounds._sw.lng;
+  let lngMax = bounds._ne.lng > 180 ? 180 : bounds._ne.lng;
   // If more than one time filter is present, multiple requests are needed
 
   /* Currently there is a limitation in the globe for the getBounds function that
@@ -215,7 +221,18 @@ export async function getMindatData(
     latMin = Math.max(Math.min(latMin, latMin * 5), -85);
     latMax = Math.min(Math.max(latMax, latMax * 5), 85);
   }
+  
+  if(age){
+    const url = `${paleoCoastUrl}&points=${lngMin},${lngMax},${latMin},${latMax}&time=${age}&reverse`;
+    let res = await axios.get(url, { responseType: "json" });
 
+    // console.log(`Before: ${lngMin},${lngMax},${latMin},${latMax}`);
+    lngMin = res.data.coordinates[0][0];
+    lngMax = res.data.coordinates[0][1];
+    latMin = res.data.coordinates[1][0];
+    latMax = res.data.coordinates[1][1];
+    // console.log(`After: ${lngMin},${lngMax},${latMin},${latMax}`);
+  }
   
   let parsedData = []
 
@@ -230,17 +247,35 @@ export async function getMindatData(
 
   //filters out all of the data that is not within the correct range.
   //I am sure there is some time optimization that can happen here.
+  let coordinates = [];
   let filteredData = [];
   try {
     parsedData.results.forEach((dict) => {
       if(dict.longitude > lngMin && dict.longitude < lngMax && dict.latitude > latMin && dict.latitude < latMax){
         filteredData.push(dict);
+        if(age){
+          coordinates.push(dict.longitude);
+          coordinates.push(dict.latitude);
+        }
       }
     });
   } catch(error) {
     console.error("The type of jsonData is", typeof(parsedData), "The error is this", error);
   }
 
+  if(age && coordinates.length > 0){
+    const coordStr = coordinates.join(',');
+    const url = `${paleoCoastUrl}&points=${coordStr}&time=${age}`;
+    console.log(url);
+    let res = await axios.get(url, { responseType: "json" })
+
+    for(let i = 0; i < filteredData.length; i++){
+      filteredData[i].longitude = res.data.coordinates[i][0];
+      filteredData[i].latitude = res.data.coordinates[i][1];
+    }
+  }
+
+  console.log(filteredData);
 
   //returns the datapoints in a featureCollection geoJSON, this allows it to be plotted by other functions
   return {

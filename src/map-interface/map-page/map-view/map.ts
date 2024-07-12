@@ -9,6 +9,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { setMapStyle } from "./style-helpers";
 import { MapLayer } from "~/map-interface/app-state";
 import { ColumnProperties } from "~/map-interface/app-state/handlers/columns";
+import { useAppState, useAppActions } from "~/map-interface/app-state";
 
 const maxClusterZoom = 6;
 const highlightLayers = [
@@ -91,6 +92,7 @@ class VestigialMap extends Component<MapProps, {}> {
       if (layer.source === "coasts" && mapLayers.has(MapLayer.PALEOCOAST)) {
         this.map.setLayoutProperty(layer.id, "visibility", "visible");
       }
+      //console.log(layer);
     });
 
     if (mapLayers.has(MapLayer.FOSSILS)) {
@@ -299,7 +301,7 @@ class VestigialMap extends Component<MapProps, {}> {
 
       // Otherwise try to query the geologic map
       let features = this.map.queryRenderedFeatures(event.point, {
-        layers: ["burwell_fill", "column_fill", "filtered_column_fill", "coastline_fill"],
+        layers: ["burwell_fill", "column_fill", "filtered_column_fill"],
       });
 
       let burwellFeatures = features
@@ -508,12 +510,10 @@ class VestigialMap extends Component<MapProps, {}> {
     this.mindatPoints = await getMindatData(
       this.props.filters,
       bounds,
-      zoom
+      zoom,
     );
 
     console.log(this.mindatPoints)
-
-    // Show or hide the proper PBDB layers
 
     // Show or hide the mindat layers
     this.map.getSource("mindat-points").setData(this.mindatPoints);

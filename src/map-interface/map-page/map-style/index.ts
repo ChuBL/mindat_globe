@@ -148,7 +148,7 @@ const overlayLayers = [
   source: "coasts",
   paint: {
     "fill-color": "#777777",
-    "fill-opacity": 0.6,
+    "fill-opacity": 1,
   },
   layout: {
     visibility: "none",

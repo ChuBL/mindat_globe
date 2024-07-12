@@ -29,6 +29,7 @@ export const SETTINGS = {
   pbdbDomain: "https://paleobiodb.org",
   mapboxAccessToken: process.env.MAPBOX_API_TOKEN,
   coastlineDomain: "https://gws.gplates.org/reconstruct/coastlines/",
+  coastlinePointDomain: "https://gws.gplates.org/reconstruct/reconstruct_points/",
 };
 
 export const routerBasename = process.env.PUBLIC_URL;
