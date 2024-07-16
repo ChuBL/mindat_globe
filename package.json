@@ -98,11 +98,13 @@
     "react-router-hash-link": "^2.4.3",
     "reduce-reducers": "^1.0.4",
     "redux": "^4.0.5",
+    "supercluster": "^8.0.1",
     "supports-color": "^9.3.1",
     "topojson-client": "^3.0.0",
     "transition-hook": "^1.5.2",
     "use-react-router-breadcrumbs": "^3.2.1",
-    "use-resize-observer": "^9.1.0"
+    "use-resize-observer": "^9.1.0",
+    "use-supercluster": "^1.2.0"
   },
   "resolutions": {
     "react": "^18.0.0",

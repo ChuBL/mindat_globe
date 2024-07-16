@@ -9,7 +9,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { setMapStyle } from "./style-helpers";
 import { MapLayer } from "~/map-interface/app-state";
 import { ColumnProperties } from "~/map-interface/app-state/handlers/columns";
-import { useAppState, useAppActions } from "~/map-interface/app-state";
+import { getClusters } from "~/map-interface/app-state/hooks"
 
 const maxClusterZoom = 6;
 const highlightLayers = [
@@ -17,6 +17,7 @@ const highlightLayers = [
   { layer: "pbdb-points-clustered", source: "pbdb-points" },
   { layer: "pbdb-clusters", source: "pbdb-clusters" },
   { layer: "mindat-points", source: "mindat-points"},
+  { layer: "mindat-clusters", source: "mindat-clusters"},
   { layer: "coasts", source: "coasts"},
 ];
 
@@ -504,6 +505,8 @@ class VestigialMap extends Component<MapProps, {}> {
     }
   }
 
+
+
   async refreshMindat() {
     const { mapLayers } = this.props;
     let bounds = this.map.getBounds();
@@ -516,7 +519,15 @@ class VestigialMap extends Component<MapProps, {}> {
       age,
     );
 
-    console.log(this.mindatPoints)
+    const points = this.mindatPoints.features;
+    const smashedBounds = this.map ? [].concat.apply([], bounds.toArray()) : null;
+
+    let clusters = this.map ? getClusters(points, smashedBounds, zoom): null;
+
+    console.log(points, smashedBounds, zoom);
+
+
+    console.log(clusters);
 
     // Show or hide the mindat layers
     this.map.getSource("mindat-points").setData(this.mindatPoints);

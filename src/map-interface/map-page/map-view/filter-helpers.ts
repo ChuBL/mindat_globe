@@ -226,12 +226,10 @@ export async function getMindatData(
     const url = `${paleoCoastUrl}&points=${lngMin},${latMin},${lngMin},${latMax},${lngMax},${latMin},${lngMax},${latMax}&time=${age}&reverse`;
     let res = await axios.get(url, { responseType: "json" });
 
-    console.log(`Before: ${lngMin},${lngMax},${latMin},${latMax}`);
     lngMin = (res.data.coordinates[0][0]+res.data.coordinates[1][0])/2;
     lngMax = (res.data.coordinates[2][0]+res.data.coordinates[3][0])/2;
     latMin = (res.data.coordinates[0][1]+res.data.coordinates[2][1])/2;
     latMax = (res.data.coordinates[1][1]+res.data.coordinates[3][1])/2;
-    console.log(`After: ${lngMin},${lngMax},${latMin},${latMax}`);
   }
   
   let parsedData = []
@@ -278,16 +276,17 @@ export async function getMindatData(
     }
   }
 
-  // console.log(filteredData);
-
   //returns the datapoints in a featureCollection geoJSON, this allows it to be plotted by other functions
   return {
     type: "FeatureCollection",
     features: filteredData.map((f, i) => {
       return {
         type: "Feature",
-        properties: f,
         id: i,
+        properties: {
+          ...f,
+          cluster: false,
+        },
         geometry: {
           type: "Point",
           coordinates: [f.longitude, f.latitude],

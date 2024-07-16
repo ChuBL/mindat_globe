@@ -3,6 +3,7 @@ import actionRunner from "./handlers";
 import { useStore, useSelector, useDispatch } from "react-redux";
 import { AppState } from ".";
 import React from "react";
+import useSupercluster from "use-supercluster";
 import { useEffect } from "react";
 
 import axios from 'axios';
@@ -60,21 +61,16 @@ interface OutsideClickI {
   fn: (event: Event) => void;
 }
 
-function useOutsideClick(props: OutsideClickI) {
-  const { ref, fn } = props;
+const getClusters = (points, bounds, zoom) => {
+  const { clusters } = useSupercluster({
+    points,
+    zoom,
+    bounds,
+    options: { radius: 75, maxZoom: 20 },
+  });
+  return clusters;
+};
 
-  useEffect(() => {
-    function handleOutsideClick(event) {
-      if (ref.current && !ref.current?.contains(event.target)) {
-        return fn(event);
-      }
-    }
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
-  }, [ref]);
-}
 
 export {
   useAppActions,
@@ -82,5 +78,5 @@ export {
   useSearchState,
   useMenuState,
   useAppState,
-  useOutsideClick,
+  getClusters,
 };
