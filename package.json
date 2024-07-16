@@ -88,10 +88,10 @@
     "mapbox-gl": "^2.11.0",
     "mapbox-gl-controls": "^2.3.5",
     "new-github-issue-url": "^1.0.0",
-    "react": "^18.2.0",
+    "react": "^18.3.1",
     "react-animate-height": "^0.10.9",
     "react-cookie": "^3.0.4",
-    "react-dom": "^18.2.0",
+    "react-dom": "^18.3.1",
     "react-redux": "^7.2.0",
     "react-router": "^6.3.0",
     "react-router-dom": "^6.3.0",
@@ -104,7 +104,8 @@
     "transition-hook": "^1.5.2",
     "use-react-router-breadcrumbs": "^3.2.1",
     "use-resize-observer": "^9.1.0",
-    "use-supercluster": "^1.2.0"
+    "use-supercluster": "^1.2.0",
+    "yarn-deduplicate": "^6.0.2"
   },
   "resolutions": {
     "react": "^18.0.0",

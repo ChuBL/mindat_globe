@@ -7,7 +7,6 @@ import { SETTINGS } from "../../settings";
 import axios from "axios";
 
 const paleoCoastUrl = `${SETTINGS.coastlinePointDomain}?&model=SETON2012`;
-type Dictionary = { [key: string]: any };
 
 export function getExpressionForFilters(
   filters: FilterData[]

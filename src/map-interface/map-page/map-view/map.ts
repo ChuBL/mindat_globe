@@ -9,7 +9,8 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { setMapStyle } from "./style-helpers";
 import { MapLayer } from "~/map-interface/app-state";
 import { ColumnProperties } from "~/map-interface/app-state/handlers/columns";
-import { getClusters } from "~/map-interface/app-state/hooks"
+// import { getClusters } from "~/map-interface/app-state/hooks"
+import Supercluster from "supercluster";
 
 const maxClusterZoom = 6;
 const highlightLayers = [
@@ -522,15 +523,34 @@ class VestigialMap extends Component<MapProps, {}> {
     const points = this.mindatPoints.features;
     const smashedBounds = this.map ? [].concat.apply([], bounds.toArray()) : null;
 
-    let clusters = this.map ? getClusters(points, smashedBounds, zoom): null;
+    // let clusters = this.map ? getClusters(points, smashedBounds, zoom): null;
+    let index = new Supercluster({
+      log: false,
+      radius: 20,
+      maxZoom: 18
+    }).load(points);
+    
+    let clusters = index.getClusters([bounds._sw.lng, bounds._sw.lat, bounds._ne.lng, bounds._ne.lat], zoom);
+    
+    const geoJson = {
+      type: "FeatureCollection",
+      features: clusters.map((f) => {
+        return {
+          type: "Feature",
+          id: f.id,
+          properties: {
+            ...f.properties,
+            cluster: true,
+          },
+          geometry: f.geometry,
+        };
+      }),
+    };
 
-    console.log(points, smashedBounds, zoom);
-
-
-    console.log(clusters);
+    // console.log(bounds, [bounds._sw.lng, bounds._sw.lat, bounds._ne.lng, bounds._ne.lat], geoJson, this.mindatPoints);
 
     // Show or hide the mindat layers
-    this.map.getSource("mindat-points").setData(this.mindatPoints);
+    this.map.getSource("mindat-points").setData(geoJson);
     this.map.setLayoutProperty("mindat-points", "visibility", "visible");
   }
 
