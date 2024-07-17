@@ -5,6 +5,7 @@ import {
 } from "~/map-interface/app-state/handlers/filters";
 import { SETTINGS } from "../../settings";
 import axios from "axios";
+import mapboxgl from 'mapbox-gl';
 
 const paleoCoastUrl = `${SETTINGS.coastlinePointDomain}?&model=SETON2012`;
 
@@ -198,8 +199,6 @@ export async function getMindatData(
   age = null,
 ): Promise<FeatureCollection<Point, any>> {
 
-
-
   // Make sure lngs are between -180 and 180
   let lngMin = bounds._sw.lng < -180 ? -180 : bounds._sw.lng;
   let lngMax = bounds._ne.lng > 180 ? 180 : bounds._ne.lng;
@@ -221,15 +220,15 @@ export async function getMindatData(
     latMax = Math.min(Math.max(latMax, latMax * 5), 85);
   }
   
-  if(age){
-    const url = `${paleoCoastUrl}&points=${lngMin},${latMin},${lngMin},${latMax},${lngMax},${latMin},${lngMax},${latMax}&time=${age}&reverse`;
-    let res = await axios.get(url, { responseType: "json" });
+  // if(age){
+  //   const url = `${paleoCoastUrl}&points=${lngMin},${latMin},${lngMin},${latMax},${lngMax},${latMin},${lngMax},${latMax}&time=${age}&reverse`;
+  //   let res = await axios.get(url, { responseType: "json" });
 
-    lngMin = (res.data.coordinates[0][0]+res.data.coordinates[1][0])/2;
-    lngMax = (res.data.coordinates[2][0]+res.data.coordinates[3][0])/2;
-    latMin = (res.data.coordinates[0][1]+res.data.coordinates[2][1])/2;
-    latMax = (res.data.coordinates[1][1]+res.data.coordinates[3][1])/2;
-  }
+  //   lngMin = (res.data.coordinates[0][0]+res.data.coordinates[1][0])/2;
+  //   lngMax = (res.data.coordinates[2][0]+res.data.coordinates[3][0])/2;
+  //   latMin = (res.data.coordinates[0][1]+res.data.coordinates[2][1])/2;
+  //   latMax = (res.data.coordinates[1][1]+res.data.coordinates[3][1])/2;
+  // }
   
   let parsedData = []
 
@@ -250,29 +249,10 @@ export async function getMindatData(
     parsedData.results.forEach((dict) => {
       if(dict.longitude > lngMin && dict.longitude < lngMax && dict.latitude > latMin && dict.latitude < latMax){
         filteredData.push(dict);
-        if(age){
-          coordinates.push(dict.longitude);
-          coordinates.push(dict.latitude);
-        }
       }
     });
   } catch(error) {
     console.error("The type of jsonData is", typeof(parsedData), "The error is this", error);
-  }
-
-  if(age && coordinates.length > 0){
-    const coordStr = coordinates.join(',');
-    const url = `${paleoCoastUrl}&points=${coordStr}&time=${age}`;
-    try{
-      let res = await axios.get(url, { responseType: "json" })
-
-      for(let i = 0; i < filteredData.length; i++){
-        filteredData[i].longitude = res.data.coordinates[i][0];
-        filteredData[i].latitude = res.data.coordinates[i][1];
-      }
-    } catch (error) {
-      console.error("Issue gathering new point data, this can occur because the url is too long: ", error);
-    }
   }
 
   //returns the datapoints in a featureCollection geoJSON, this allows it to be plotted by other functions
@@ -293,4 +273,62 @@ export async function getMindatData(
       };
     }),
   };
+}
+
+export async function getPaleoPoints(age, POINTS)
+{
+  let points = POINTS;
+  if(age <= 200 && age > 0){
+    let coordinates = [];
+    points.forEach((dict) => {
+      coordinates.push(dict.geometry.coordinates[0]);
+      coordinates.push(dict.geometry.coordinates[1]);
+    });
+
+    console.log(coordinates);
+
+    if(coordinates.length > 0){
+      const coordStr = coordinates.join(',');
+      const url = `${paleoCoastUrl}&points=${coordStr}&time=${age}`;
+      try{
+        let response = await axios.get(url, { responseType: "json" })
+  
+        for(let i = 0; i < points.length; i++){
+          points[i].geometry.coordinates[0] = response.data.coordinates[i][0];
+          points[i].geometry.coordinates[1] = response.data.coordinates[i][1];
+          // points[i].longitude = response.data.coordinates[i][0];
+          // points[i].latitude = response.data.coordinates[i][1];
+        }
+      } catch (error) {
+        console.error("Issue gathering new point data, this can occur because the url is too long: ", error);
+      }
+    }
+    return points;
+  }else{
+    console.log("Invalid age range for paleoCoast.");
+    return null;
+  }
+}
+
+export async function getPaleoBounds(age, zoom, BOUNDS){
+  let bounds = BOUNDS;
+
+  let lngMin = bounds._sw.lng < -180 ? -180 : bounds._sw.lng;
+  let lngMax = bounds._ne.lng > 180 ? 180 : bounds._ne.lng;
+  let latMin = bounds._sw.lat;
+  let latMax = bounds._ne.lat;
+
+
+  if(age){
+    const url = `${paleoCoastUrl}&points=${lngMin},${latMin},${lngMax},${latMax}&time=${age}&reverse`;
+    let res = await axios.get(url, { responseType: "json" });
+
+    lngMin = res.data.coordinates[0][0];
+    lngMax = res.data.coordinates[1][0];
+    latMin = res.data.coordinates[0][1];
+    latMax = res.data.coordinates[1][1];
+  }
+
+  const changedBounds = new mapboxgl.LngLatBounds([lngMin, latMin], [lngMax, latMax]);
+  return changedBounds;
 }

@@ -1,8 +1,7 @@
 import { Component, forwardRef } from "react";
 import { SETTINGS } from "../../settings";
 import { mapStyle } from "../map-style";
-import { getPBDBData } from "./filter-helpers";
-import { getMindatData } from "./filter-helpers";
+import { getPBDBData, getMindatData, getPaleoPoints, getPaleoBounds } from "./filter-helpers";
 import h from "@macrostrat/hyper";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -11,7 +10,9 @@ import { MapLayer } from "~/map-interface/app-state";
 import { ColumnProperties } from "~/map-interface/app-state/handlers/columns";
 // import { getClusters } from "~/map-interface/app-state/hooks"
 import Supercluster from "supercluster";
+import axios from "axios";
 
+const paleoCoastUrl = `${SETTINGS.coastlinePointDomain}?&model=SETON2012`;
 const maxClusterZoom = 6;
 const highlightLayers = [
   { layer: "pbdb-points", source: "pbdb-points" },
@@ -523,25 +524,36 @@ class VestigialMap extends Component<MapProps, {}> {
     let zoom = this.map.getZoom();
     let age = mapLayers.has(MapLayer.PALEOCOAST) ? 50 : null;
     let maxClusterZoom = 10;
+    // console.log(bounds);
+
+    let customBounds = age ? await getPaleoBounds(age, zoom, bounds) : bounds;
+
     this.mindatPoints = await getMindatData(
       this.props.filters,
-      bounds,
+      customBounds,
       zoom,
       age,
     );
 
     if(zoom < maxClusterZoom) {
       const points = this.mindatPoints.features;
-      const smashedBounds = this.map ? [].concat.apply([], bounds.toArray()) : null;
+      const smashedBounds = this.map ? [].concat.apply([], customBounds.toArray()) : null;
 
       // let clusters = this.map ? getClusters(points, smashedBounds, zoom): null;
       let index = new Supercluster({
         log: false,
-        radius: 30,
+        radius: 45,
         maxZoom: maxClusterZoom
       }).load(points);
       
-      let clusters = index.getClusters([bounds._sw.lng, bounds._sw.lat, bounds._ne.lng, bounds._ne.lat], zoom);
+      let clusters = index.getClusters([customBounds._sw.lng, customBounds._sw.lat, 
+                                        customBounds._ne.lng, customBounds._ne.lat], zoom);
+
+      //transforms the points if there is age variable.
+      console.log("before", this.mindatPoints);
+      if(age && clusters.length > 0){
+        clusters = await getPaleoPoints(age, clusters);
+      }
 
       const clusteredPoints = {
         type: "FeatureCollection",
@@ -557,12 +569,18 @@ class VestigialMap extends Component<MapProps, {}> {
           };
         }),
       };
-      console.log(`disabling mindat points, enabling clusters, ${zoom}.`);
+      
       this.map.getSource("mindat-clusters").setData(clusteredPoints);
       this.map.setLayoutProperty("mindat-clusters", "visibility", "visible");
       this.map.setLayoutProperty("mindat-points", "visibility", "none");
     } else {
-      console.log(`Disabling clusters, enabling mindat points, ${zoom}`);
+      
+            //transforms the points if there is age variable.
+      if(age && this.mindatPoints.features.length > 0){
+        this.mindatPoints.features = await getPaleoPoints(age, this.mindatPoints.features);
+      }
+
+
       this.map.getSource("mindat-points").setData(this.mindatPoints);
       this.map.setLayoutProperty("mindat-points", "visibility", "visible");
       this.map.setLayoutProperty("mindat-clusters", "visibility", "none");
