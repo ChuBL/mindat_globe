@@ -42,14 +42,14 @@ function setMapStyle(class_, map, mapStyle, props) {
             hasFossils ? "visible" : "none"
           );
         }
-      }else if(layer.source === "mindat-points") {
+      }else if(layer.source === "mindat-points" || layer.source === "mindat-clusters") {
         
         const hasMindat = mapLayers.has(MapLayer.MINDAT);
 
         if(class_.props.mapLayers.has(MapLayer.MINDAT) != hasMindat && hasMindat){
           class_.refreshMindat();
         } else {
-          map.setLayoutProperty(layer.id, "visibility", hasMindat ? "visible" : "none");
+          // map.setLayoutProperty(layer.id, "visibility", hasMindat ? "visible" : "none");
         }
 
       }else if (layer.source === "columns") {

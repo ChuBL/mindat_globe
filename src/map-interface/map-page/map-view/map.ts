@@ -85,7 +85,10 @@ class VestigialMap extends Component<MapProps, {}> {
       ) {
         this.map.setLayoutProperty(layer.id, "visibility", "visible");
       }
-      if (layer.source === "mindat-points" && mapLayers.has(MapLayer.MINDAT)) {
+      if (
+        (layer.source === "mindat-points" || layer.source === "mindat-clusters") && 
+        mapLayers.has(MapLayer.MINDAT)
+      ) {
         this.map.setLayoutProperty(layer.id, "visibility", "visible")
       }
       if (layer.source === "columns" && mapLayers.has(MapLayer.COLUMNS)) {
@@ -554,12 +557,12 @@ class VestigialMap extends Component<MapProps, {}> {
           };
         }),
       };
-
-      this.map.getSource("mindat-points").setData(null);
+      console.log(`disabling mindat points, enabling clusters, ${zoom}.`);
       this.map.getSource("mindat-clusters").setData(clusteredPoints);
-      this.map.setLayoutProperty("mindat-points", "visibility", "none");
       this.map.setLayoutProperty("mindat-clusters", "visibility", "visible");
+      this.map.setLayoutProperty("mindat-points", "visibility", "none");
     } else {
+      console.log(`Disabling clusters, enabling mindat points, ${zoom}`);
       this.map.getSource("mindat-points").setData(this.mindatPoints);
       this.map.setLayoutProperty("mindat-points", "visibility", "visible");
       this.map.setLayoutProperty("mindat-clusters", "visibility", "none");
