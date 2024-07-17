@@ -287,12 +287,18 @@ class VestigialMap extends Component<MapProps, {}> {
       //Queries mindat data points for in depth retrieval
       if(this.props.mapLayers.has(MapLayer.MINDAT)) {
         let collections = this.map.queryRenderedFeatures(event.point, {
-          layers: ["mindat-points"],
+          layers: ["mindat-points", "mindat-clusters"],
         });
 
+        if (
+          collections.length &&
+          collections[0].properties.cluster == true
+        ) {
+          this.map.zoomTo(mapZoom + 1, { center: event.lngLat });
+          return;
         //checks that the data exists and that it has an id so it can search the JSON files
         //if the point clicked has no proper id, it will clear the data from the popout window
-        if(collections.length && collections[0].properties.hasOwnProperty("id")){
+        } else if(collections.length && collections[0].properties.hasOwnProperty("id")){
           let id = collections[0].properties.id
           this.props.runAction({ type: "get-mindat", id });
         }else{
@@ -513,6 +519,7 @@ class VestigialMap extends Component<MapProps, {}> {
     let bounds = this.map.getBounds();
     let zoom = this.map.getZoom();
     let age = mapLayers.has(MapLayer.PALEOCOAST) ? 50 : null;
+    let maxClusterZoom = 10;
     this.mindatPoints = await getMindatData(
       this.props.filters,
       bounds,
@@ -520,38 +527,47 @@ class VestigialMap extends Component<MapProps, {}> {
       age,
     );
 
-    const points = this.mindatPoints.features;
-    const smashedBounds = this.map ? [].concat.apply([], bounds.toArray()) : null;
+    if(zoom < maxClusterZoom) {
+      const points = this.mindatPoints.features;
+      const smashedBounds = this.map ? [].concat.apply([], bounds.toArray()) : null;
 
-    // let clusters = this.map ? getClusters(points, smashedBounds, zoom): null;
-    let index = new Supercluster({
-      log: false,
-      radius: 20,
-      maxZoom: 18
-    }).load(points);
-    
-    let clusters = index.getClusters([bounds._sw.lng, bounds._sw.lat, bounds._ne.lng, bounds._ne.lat], zoom);
-    
-    const geoJson = {
-      type: "FeatureCollection",
-      features: clusters.map((f) => {
-        return {
-          type: "Feature",
-          id: f.id,
-          properties: {
-            ...f.properties,
-            cluster: true,
-          },
-          geometry: f.geometry,
-        };
-      }),
-    };
+      // let clusters = this.map ? getClusters(points, smashedBounds, zoom): null;
+      let index = new Supercluster({
+        log: false,
+        radius: 30,
+        maxZoom: maxClusterZoom
+      }).load(points);
+      
+      let clusters = index.getClusters([bounds._sw.lng, bounds._sw.lat, bounds._ne.lng, bounds._ne.lat], zoom);
+
+      const clusteredPoints = {
+        type: "FeatureCollection",
+        features: clusters.map((f) => {
+          return {
+            type: "Feature",
+            id: f.id,
+            properties: {
+              ...f.properties,
+              cluster: true,
+            },
+            geometry: f.geometry,
+          };
+        }),
+      };
+
+      this.map.getSource("mindat-points").setData(null);
+      this.map.getSource("mindat-clusters").setData(clusteredPoints);
+      this.map.setLayoutProperty("mindat-points", "visibility", "none");
+      this.map.setLayoutProperty("mindat-clusters", "visibility", "visible");
+    } else {
+      this.map.getSource("mindat-points").setData(this.mindatPoints);
+      this.map.setLayoutProperty("mindat-points", "visibility", "visible");
+      this.map.setLayoutProperty("mindat-clusters", "visibility", "none");
+    }
 
     // console.log(bounds, [bounds._sw.lng, bounds._sw.lat, bounds._ne.lng, bounds._ne.lat], geoJson, this.mindatPoints);
 
     // Show or hide the mindat layers
-    this.map.getSource("mindat-points").setData(geoJson);
-    this.map.setLayoutProperty("mindat-points", "visibility", "visible");
   }
 
   // Update the colors of the hexgrids
