@@ -19,7 +19,7 @@ export type MapLocation = {
 type FETCH_SEARCH_QUERY = { type: "fetch-search-query"; term: string };
 type ASYNC_ADD_FILTER = { type: "async-add-filter"; filter: any };
 type GET_FILTERED_COLUMNS = { type: "get-filtered-columns" };
-type GET_PALEO_COAST = { type: "get-paleo-coast" };
+type GET_PALEO_COAST = { type: "get-paleo-coast"; age: number};
 type FETCH_XDD = { type: "fetch-xdd" };
 type MAP_QUERY = {
   type: "map-query" | "run-map-query";
@@ -31,7 +31,7 @@ type MAP_QUERY = {
 type GET_COLUMN_UNITS = { type: "get-column-units"; column: ColumnProperties };
 type GET_ELEVATION = { type: "get-elevation"; line: any };
 type GET_PBDB = { type: "get-pbdb"; collection_nos: any };
-type GET_MINDAT = { type: "get-mindat"; id: any };
+type GET_MINDAT = { type: "get-mindat"; id: number };
 // Define constants to be passed with actions
 type RECIEVE_DATA = { type: "recieve-data" };
 type REQUEST_DATA = { type: "request-data" };

@@ -48,8 +48,8 @@ function setMapStyle(class_, map, mapStyle, props) {
 
         if(class_.props.mapLayers.has(MapLayer.MINDAT) != hasMindat && hasMindat){
           class_.refreshMindat();
-        } else {
-          // map.setLayoutProperty(layer.id, "visibility", hasMindat ? "visible" : "none");
+        } else if (!hasMindat) {
+          map.setLayoutProperty(layer.id, "visibility", "none");
         }
 
       }else if (layer.source === "columns") {

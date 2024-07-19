@@ -32,7 +32,7 @@ import {
   mergeStyles,
   MapPosition,
 } from "@macrostrat/mapbox-utils";
-import { getExpressionForFilters } from "./filter-helpers";
+import { getExpressionForFilters, getAge, setAge } from "./filter-helpers";
 import { MapSourcesLayer, mapStyle, toggleLineSymbols } from "../map-style";
 import { SETTINGS } from "../../settings";
 import mapboxgl from "mapbox-gl";
@@ -332,8 +332,10 @@ function MapContainer(props) {
   }, [filters, mapLayers]);
 
   useEffect(() => {
+    let age = mapLayers.has(MapLayer.PALEOCOAST) ? getAge() : null;
+    console.log(age);
     if (mapLayers.has(MapLayer.PALEOCOAST)) {
-      runAction({ type: "get-paleo-coast" });
+      runAction({ type: "get-paleo-coast", age });
     }
     runAction({ type: "map-layers-changed", mapLayers });
   }, [filters, mapLayers]);

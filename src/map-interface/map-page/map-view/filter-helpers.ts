@@ -193,10 +193,8 @@ export async function getPBDBData(
 }
 
 export async function getMindatData(
-  filters: FilterData[],
   bounds: mapboxgl.LngLatBounds,
   zoom: number,
-  age = null,
 ): Promise<FeatureCollection<Point, any>> {
 
   // Make sure lngs are between -180 and 180
@@ -331,4 +329,19 @@ export async function getPaleoBounds(age, zoom, BOUNDS){
 
   const changedBounds = new mapboxgl.LngLatBounds([lngMin, latMin], [lngMax, latMax]);
   return changedBounds;
+}
+
+let age: number | null = null;
+age = 20;
+
+export function getAge(): number | null {
+  return age;
+}
+
+export function setAge(newAge: number): void {
+  if (newAge <= 200 && newAge > 0) {
+    age = newAge;
+  } else {
+    console.error("Invalid age range. Age must be between 1 and 200.");
+  }
 }

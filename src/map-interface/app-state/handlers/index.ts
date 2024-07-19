@@ -27,6 +27,7 @@ import {
   ColumnGeoJSONRecord,
 } from "./columns";
 import { MapLayer } from "../reducers/core";
+import { getAge } from "~/map-interface/map-page/map-view/filter-helpers";
 
 async function actionRunner(
   state: AppState,
@@ -87,6 +88,7 @@ async function actionRunner(
       };
     }
     case "map-layers-changed": {
+      const age = getAge();
       const { mapLayers } = action;
       if (mapLayers.has(MapLayer.COLUMNS) && state.core.allColumns == null) {
         const columns = await fetchAllColumns();
@@ -181,6 +183,7 @@ async function actionRunner(
         columns: await fetchFilteredColumns(coreState.filters),
       };
     case "get-paleo-coast":
+      const age = action;
       return {
         type: "update-paleo-coast",
         paleoCoast: await fetchPaleoCoast(age),

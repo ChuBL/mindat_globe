@@ -1,7 +1,7 @@
 import { Component, forwardRef } from "react";
 import { SETTINGS } from "../../settings";
 import { mapStyle } from "../map-style";
-import { getPBDBData, getMindatData, getPaleoPoints, getPaleoBounds } from "./filter-helpers";
+import { getPBDBData, getMindatData, getPaleoPoints, getPaleoBounds, getAge } from "./filter-helpers";
 import h from "@macrostrat/hyper";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -522,17 +522,15 @@ class VestigialMap extends Component<MapProps, {}> {
     const { mapLayers } = this.props;
     let bounds = this.map.getBounds();
     let zoom = this.map.getZoom();
-    let age = mapLayers.has(MapLayer.PALEOCOAST) ? 50 : null;
+    let paleoAge = mapLayers.has(MapLayer.PALEOCOAST) ? getAge() : null;
     let maxClusterZoom = 10;
-    // console.log(bounds);
+    console.log(getAge());
 
-    let customBounds = age ? await getPaleoBounds(age, zoom, bounds) : bounds;
+    let customBounds = paleoAge ? await getPaleoBounds(paleoAge, zoom, bounds) : bounds;
 
     this.mindatPoints = await getMindatData(
-      this.props.filters,
       customBounds,
       zoom,
-      age,
     );
 
     if(zoom < maxClusterZoom) {
@@ -551,8 +549,8 @@ class VestigialMap extends Component<MapProps, {}> {
 
       //transforms the points if there is age variable.
       console.log("before", this.mindatPoints);
-      if(age && clusters.length > 0){
-        clusters = await getPaleoPoints(age, clusters);
+      if(paleoAge && clusters.length > 0){
+        clusters = await getPaleoPoints(paleoAge, clusters);
       }
 
       const clusteredPoints = {
@@ -576,8 +574,8 @@ class VestigialMap extends Component<MapProps, {}> {
     } else {
       
             //transforms the points if there is age variable.
-      if(age && this.mindatPoints.features.length > 0){
-        this.mindatPoints.features = await getPaleoPoints(age, this.mindatPoints.features);
+      if(paleoAge && this.mindatPoints.features.length > 0){
+        this.mindatPoints.features = await getPaleoPoints(paleoAge, this.mindatPoints.features);
       }
 
 
@@ -589,6 +587,11 @@ class VestigialMap extends Component<MapProps, {}> {
     // console.log(bounds, [bounds._sw.lng, bounds._sw.lat, bounds._ne.lng, bounds._ne.lat], geoJson, this.mindatPoints);
 
     // Show or hide the mindat layers
+  }
+
+  mapAge(){
+    console.log(this.age);
+    return this.age;
   }
 
   // Update the colors of the hexgrids
