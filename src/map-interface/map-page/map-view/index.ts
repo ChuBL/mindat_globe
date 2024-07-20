@@ -332,10 +332,8 @@ function MapContainer(props) {
   }, [filters, mapLayers]);
 
   useEffect(() => {
-    let age = mapLayers.has(MapLayer.PALEOCOAST) ? getAge() : null;
-    console.log(age);
     if (mapLayers.has(MapLayer.PALEOCOAST)) {
-      runAction({ type: "get-paleo-coast", age });
+      runAction({ type: "get-paleo-coast"});
     }
     runAction({ type: "map-layers-changed", mapLayers });
   }, [filters, mapLayers]);

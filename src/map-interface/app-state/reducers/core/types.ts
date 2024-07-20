@@ -19,7 +19,7 @@ export type MapLocation = {
 type FETCH_SEARCH_QUERY = { type: "fetch-search-query"; term: string };
 type ASYNC_ADD_FILTER = { type: "async-add-filter"; filter: any };
 type GET_FILTERED_COLUMNS = { type: "get-filtered-columns" };
-type GET_PALEO_COAST = { type: "get-paleo-coast"; age: number};
+type GET_PALEO_COAST = { type: "get-paleo-coast"};
 type FETCH_XDD = { type: "fetch-xdd" };
 type MAP_QUERY = {
   type: "map-query" | "run-map-query";

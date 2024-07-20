@@ -218,16 +218,6 @@ export async function getMindatData(
     latMax = Math.min(Math.max(latMax, latMax * 5), 85);
   }
   
-  // if(age){
-  //   const url = `${paleoCoastUrl}&points=${lngMin},${latMin},${lngMin},${latMax},${lngMax},${latMin},${lngMax},${latMax}&time=${age}&reverse`;
-  //   let res = await axios.get(url, { responseType: "json" });
-
-  //   lngMin = (res.data.coordinates[0][0]+res.data.coordinates[1][0])/2;
-  //   lngMax = (res.data.coordinates[2][0]+res.data.coordinates[3][0])/2;
-  //   latMin = (res.data.coordinates[0][1]+res.data.coordinates[2][1])/2;
-  //   latMax = (res.data.coordinates[1][1]+res.data.coordinates[3][1])/2;
-  // }
-  
   let parsedData = []
 
   //grabs the data from the public directory.
@@ -283,8 +273,6 @@ export async function getPaleoPoints(age, POINTS)
       coordinates.push(dict.geometry.coordinates[1]);
     });
 
-    console.log(coordinates);
-
     if(coordinates.length > 0){
       const coordStr = coordinates.join(',');
       const url = `${paleoCoastUrl}&points=${coordStr}&time=${age}`;
@@ -331,8 +319,8 @@ export async function getPaleoBounds(age, zoom, BOUNDS){
   return changedBounds;
 }
 
+
 let age: number | null = null;
-age = 20;
 
 export function getAge(): number | null {
   return age;
@@ -344,4 +332,11 @@ export function setAge(newAge: number): void {
   } else {
     console.error("Invalid age range. Age must be between 1 and 200.");
   }
+}
+
+export async function getCoasts() {
+  let url = `${paleoCoastUrl}&time=${age}`;
+  let res = await axios.get(url, {responseType: "json"});
+
+  return res.data.features;
 }

@@ -1,7 +1,7 @@
 import { Component, forwardRef } from "react";
 import { SETTINGS } from "../../settings";
 import { mapStyle } from "../map-style";
-import { getPBDBData, getMindatData, getPaleoPoints, getPaleoBounds, getAge } from "./filter-helpers";
+import { getPBDBData, getMindatData, getPaleoPoints, getPaleoBounds, getAge, getCoasts } from "./filter-helpers";
 import h from "@macrostrat/hyper";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -10,7 +10,6 @@ import { MapLayer } from "~/map-interface/app-state";
 import { ColumnProperties } from "~/map-interface/app-state/handlers/columns";
 // import { getClusters } from "~/map-interface/app-state/hooks"
 import Supercluster from "supercluster";
-import axios from "axios";
 
 const paleoCoastUrl = `${SETTINGS.coastlinePointDomain}?&model=SETON2012`;
 const maxClusterZoom = 6;
@@ -148,6 +147,8 @@ class VestigialMap extends Component<MapProps, {}> {
         this.refreshMindat();
       }
     });
+
+    
 
     this.map.on("style.load", this.onStyleLoad.bind(this));
     this.onStyleLoad();
@@ -524,7 +525,6 @@ class VestigialMap extends Component<MapProps, {}> {
     let zoom = this.map.getZoom();
     let paleoAge = mapLayers.has(MapLayer.PALEOCOAST) ? getAge() : null;
     let maxClusterZoom = 10;
-    console.log(getAge());
 
     let customBounds = paleoAge ? await getPaleoBounds(paleoAge, zoom, bounds) : bounds;
 
@@ -548,7 +548,6 @@ class VestigialMap extends Component<MapProps, {}> {
                                         customBounds._ne.lng, customBounds._ne.lat], zoom);
 
       //transforms the points if there is age variable.
-      console.log("before", this.mindatPoints);
       if(paleoAge && clusters.length > 0){
         clusters = await getPaleoPoints(paleoAge, clusters);
       }
@@ -589,9 +588,12 @@ class VestigialMap extends Component<MapProps, {}> {
     // Show or hide the mindat layers
   }
 
-  mapAge(){
-    console.log(this.age);
-    return this.age;
+  refreshPaleoCoast() {
+    console.log("refresh")
+    const coasts = getCoasts();
+
+    this.map.getSource("coasts").setData(coasts);
+    this.map.setLayoutProperty("coasts", "visibility", "visible");
   }
 
   // Update the colors of the hexgrids

@@ -62,8 +62,7 @@ export async function fetchFilteredColumns(providedFilters) {
 
 
 export async function fetchPaleoCoast(age) {
-  console.log(age);
-  let url = `${paleoCoastUrl}&&time=${age}`;
+  let url = `${paleoCoastUrl}&time=${age}`;
   let res = await axios.get(url, {responseType: "json"});
   return res.data;
 }

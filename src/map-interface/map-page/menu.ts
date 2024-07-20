@@ -36,8 +36,8 @@ import useBreadcrumbs from "use-react-router-breadcrumbs";
 import { isDetailPanelRouteInternal } from "../app-state/nav-hooks";
 import { SettingsPanel, ExperimentsPanel, ThemeButton } from "./settings-panel";
 import { useState, useEffect } from "react";
-import { LinkButton, LayerButton, ListButton } from "../components/buttons";
-import { routerBasename } from "../settings";
+import { LinkButton, LayerButton, ListButton, PaleoLayerButton } from "../components/buttons";
+import AgeSlider from "../components/AgeSlider";
 
 function ChangelogPanel() {
   return h("div.bp4-text.text-panel", [h(Changelog)]);
@@ -108,7 +108,7 @@ const LayerList = (props) => {
         layer: MapLayer.MINDAT,
         icon: MindatIcon,
       }),
-      h(LayerButton, {
+      h(PaleoLayerButton, {
         name: "Paleo Coastline",
         layer: MapLayer.PALEOCOAST,
         icon: PaleoCoastIcon,
