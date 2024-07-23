@@ -7,7 +7,8 @@ import { SETTINGS } from "../../settings";
 import axios from "axios";
 import mapboxgl from 'mapbox-gl';
 
-const paleoCoastUrl = `${SETTINGS.coastlinePointDomain}?&model=SETON2012`;
+const paleoCoastUrl = `${SETTINGS.coastlineDomain}?&model=SETON2012`;
+const paleoCoastPointUrl = `${SETTINGS.coastlinePointDomain}?&model=SETON2012`;
 
 export function getExpressionForFilters(
   filters: FilterData[]
@@ -275,7 +276,7 @@ export async function getPaleoPoints(age, POINTS)
 
     if(coordinates.length > 0){
       const coordStr = coordinates.join(',');
-      const url = `${paleoCoastUrl}&points=${coordStr}&time=${age}`;
+      const url = `${paleoCoastPointUrl}&points=${coordStr}&time=${age}`;
       try{
         let response = await axios.get(url, { responseType: "json" })
   
@@ -306,7 +307,7 @@ export async function getPaleoBounds(age, zoom, BOUNDS){
 
 
   if(age){
-    const url = `${paleoCoastUrl}&points=${lngMin},${latMin},${lngMax},${latMax}&time=${age}&reverse`;
+    const url = `${paleoCoastPointUrl}&points=${lngMin},${latMin},${lngMax},${latMax}&time=${age}&reverse`;
     let res = await axios.get(url, { responseType: "json" });
 
     lngMin = res.data.coordinates[0][0];
@@ -337,6 +338,7 @@ export function setAge(newAge: number): void {
 export async function getCoasts() {
   let url = `${paleoCoastUrl}&time=${age}`;
   let res = await axios.get(url, {responseType: "json"});
+  console.log(res.data);
 
-  return res.data.features;
+  return res.data;
 }

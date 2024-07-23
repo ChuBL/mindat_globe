@@ -30,6 +30,14 @@ interface MapProps {
   onQueryMap: (event: any, columns: ColumnProperties[]) => void;
 }
 
+
+let shouldRetrieveCoasts = false;
+
+export function setRetrieveCoasts(shouldRetrieve) {
+  shouldRetrieveCoasts = shouldRetrieve;
+  console.log(shouldRetrieveCoasts);
+}
+
 class VestigialMap extends Component<MapProps, {}> {
   map: mapboxgl.Map;
   marker: mapboxgl.Marker | null = null;
@@ -108,6 +116,10 @@ class VestigialMap extends Component<MapProps, {}> {
       this.refreshMindat();
     }
 
+    if (mapLayers.has(MapLayer.PALEOCOAST) && shouldRetrieveCoasts == true) {
+      this.refreshPaleoCoast();
+    }
+
     // NO idea why timeout is needed
     setTimeout(() => {
       this.mapLoaded = true;
@@ -145,6 +157,9 @@ class VestigialMap extends Component<MapProps, {}> {
       }
       if (this.props.mapLayers.has(MapLayer.MINDAT)) {
         this.refreshMindat();
+      }
+      if (this.props.mapLayers.has(MapLayer.PALEOCOAST) && shouldRetrieveCoasts == true) {
+        this.refreshPaleoCoast();
       }
     });
 
@@ -465,6 +480,9 @@ class VestigialMap extends Component<MapProps, {}> {
         if (nextProps.mapLayers.has(MapLayer.MINDAT)) {
           this.refreshMindat();
         }
+        if (mapLayers.has(MapLayer.PALEOCOAST) && shouldRetrieveCoasts == true) {
+          this.refreshPaleoCoast();
+        }
 
         return false;
       }
@@ -474,6 +492,9 @@ class VestigialMap extends Component<MapProps, {}> {
       }
       if (nextProps.mapLayers.has(MapLayer.MINDAT)) {
         this.refreshMindat();
+      }
+      if (mapLayers.has(MapLayer.PALEOCOAST) && shouldRetrieveCoasts == true) {
+        this.refreshPaleoCoast();
       }
 
       // Update the map styles
@@ -588,12 +609,18 @@ class VestigialMap extends Component<MapProps, {}> {
     // Show or hide the mindat layers
   }
 
-  refreshPaleoCoast() {
-    console.log("refresh")
-    const coasts = getCoasts();
+  async refreshPaleoCoast() {
+    let coasts = await getCoasts();
 
-    this.map.getSource("coasts").setData(coasts);
-    this.map.setLayoutProperty("coasts", "visibility", "visible");
+    const src = this.map.getSource("coasts");
+    if (src == null) return;
+    console.log(coasts);
+    src.setData(coasts);
+
+    setRetrieveCoasts(false);
+
+    // this.map.getSource("coasts").setData(coasts);
+    // this.map.setLayoutProperty("coasts", "visibility", "visible");
   }
 
   // Update the colors of the hexgrids

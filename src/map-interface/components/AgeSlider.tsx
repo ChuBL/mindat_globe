@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAppActions } from "~/map-interface/app-state";
 import { Slider } from '@blueprintjs/core';
 import { getAge, setAge } from '~/map-interface/map-page/map-view/filter-helpers';
+import { setRetrieveCoasts } from '~/map-interface/map-page/map-view/map';
 
 const AgeSlider = () => {
   const runAction = useAppActions();
@@ -17,7 +18,8 @@ const AgeSlider = () => {
   }, []);
 
   const handleSliderRelease = () => {
-    runAction({ type: 'get-paleo-coast' });
+    console.log("yea");
+    setRetrieveCoasts(true);
   };
 
   return (
