@@ -4,6 +4,7 @@ import LineIcon from "../components/icons/LineIcon";
 import ElevationIcon from "../components/icons/ElevationIcon";
 import FossilIcon from "../components/icons/FossilIcon";
 import MindatIcon from "../components/icons/MindatIcon";
+import PaleoCoastIcon from "../components/icons/PaleoCoastIcon";
 import BedrockIcon from "../components/icons/BedrockIcon";
 import {
   Button,
@@ -35,8 +36,8 @@ import useBreadcrumbs from "use-react-router-breadcrumbs";
 import { isDetailPanelRouteInternal } from "../app-state/nav-hooks";
 import { SettingsPanel, ExperimentsPanel, ThemeButton } from "./settings-panel";
 import { useState, useEffect } from "react";
-import { LinkButton, LayerButton, ListButton } from "../components/buttons";
-import { routerBasename } from "../settings";
+import { LinkButton, LayerButton, ListButton, PaleoLayerButton } from "../components/buttons";
+import AgeSlider from "../components/AgeSlider";
 
 function ChangelogPanel() {
   return h("div.bp4-text.text-panel", [h(Changelog)]);
@@ -106,6 +107,11 @@ const LayerList = (props) => {
         name: "Mindat",
         layer: MapLayer.MINDAT,
         icon: MindatIcon,
+      }),
+      h(PaleoLayerButton, {
+        name: "Paleo Coastline",
+        layer: MapLayer.PALEOCOAST,
+        icon: PaleoCoastIcon,
       }),
       h(LayerButton, {
         name: "Satellite",

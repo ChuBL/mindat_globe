@@ -21,7 +21,9 @@ const defaultState: CoreState = {
   initialLoadComplete: false,
   contextPanelOpen: false,
   allColumns: null,
+  allCoasts: null,
   allColumnsCancelToken: null,
+  coasts: null,
   menuOpen: false,
   aboutOpen: false,
   infoDrawerOpen: false,
@@ -56,7 +58,6 @@ const defaultState: CoreState = {
   elevationData: [],
   elevationMarkerLocation: [],
   pbdbData: [],
-  mindatData: [],
   mindatPointData: null,
   mapIsLoading: false,
   mapCenter: {
@@ -66,6 +67,7 @@ const defaultState: CoreState = {
   filtersOpen: false,
   filters: [],
   filteredColumns: {},
+  paleoCoast: {},
   data: [],
   showExperimentsPanel: false,
   mapPosition: {
@@ -94,17 +96,15 @@ export function coreReducer(
     case "map-layers-changed":
       let columnInfo = state.columnInfo;
       let pbdbData = state.pbdbData;
-      let mindatData = state.mindatData;
       let mindatPointData = state.mindatPointData;
       if (!action.mapLayers.has(MapLayer.COLUMNS)) columnInfo = null;
       if (!action.mapLayers.has(MapLayer.FOSSILS)) pbdbData = [];
-      if (!action.mapLayers.has(MapLayer.MINDAT)) mindatData = [], mindatPointData = null;
+      if (!action.mapLayers.has(MapLayer.MINDAT)) mindatPointData = null;
       return {
         ...state,
         columnInfo,
         pbdbData,
         mindatPointData,
-        mindatData,
       };
     case "toggle-menu":
       const shouldOpen = state.inputFocus || !state.menuOpen;
@@ -271,6 +271,9 @@ export function coreReducer(
     case "set-all-columns":
       return { ...state, allColumns: action.columns };
 
+    case "set-all-coasts":
+      return { ...state, allCoasts: action.coasts };
+
     case "received-column-query":
       // summarize units
       if (state.allColumns == null || state.allColumns.length == 0) {
@@ -431,6 +434,11 @@ export function coreReducer(
         ...state,
         filteredColumns: action.columns,
       };
+    case "update-paleo-coast":
+      return {
+        ...state,
+        paleoCoast: action.paleoCoast,
+      }
     case "request-data":
       return { ...state, isFetching: true };
     case "recieve-data":

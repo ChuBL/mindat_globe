@@ -42,14 +42,14 @@ function setMapStyle(class_, map, mapStyle, props) {
             hasFossils ? "visible" : "none"
           );
         }
-      }else if(layer.source === "mindat-points") {
+      }else if(layer.source === "mindat-points" || layer.source === "mindat-clusters") {
         
         const hasMindat = mapLayers.has(MapLayer.MINDAT);
 
         if(class_.props.mapLayers.has(MapLayer.MINDAT) != hasMindat && hasMindat){
           class_.refreshMindat();
-        } else {
-          map.setLayoutProperty(layer.id, "visibility", hasMindat ? "visible" : "none");
+        } else if (!hasMindat) {
+          map.setLayoutProperty(layer.id, "visibility", "none");
         }
 
       }else if (layer.source === "columns") {
@@ -71,8 +71,17 @@ function setMapStyle(class_, map, mapStyle, props) {
         ) {
           map.getSource("filteredColumns").setData(props.filteredColumns);
         }
+        
         if (visibility != showFilteredColumns) {
           map.setLayoutProperty(layer.id, "visibility", showFilteredColumns);
+        }
+      } else if (layer.source === "coasts") {
+        const showCoast =
+          mapLayers.has(MapLayer.PALEOCOAST) && !props.filters.length
+            ? "visible"
+            : "none";
+        if (visibility !== showCoast) {
+          map.setLayoutProperty(layer.id, "visibility", showCoast);
         }
       }
     }

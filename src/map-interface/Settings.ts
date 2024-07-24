@@ -1,4 +1,6 @@
 export const SETTINGS = {
+  emptyMapStyle:
+    "style: {version: 8,sources: {},layers: []",
   darkMapURL:
     //"mapbox://styles/jczaplewski/cl5uoqzzq003614o6url9ou9z?optimize=true",
     "mapbox://styles/mapbox/dark-v11",
@@ -26,6 +28,8 @@ export const SETTINGS = {
   gddDomain: "https://xdd.wisc.edu",
   pbdbDomain: "https://paleobiodb.org",
   mapboxAccessToken: process.env.MAPBOX_API_TOKEN,
+  coastlineDomain: "https://gws.gplates.org/reconstruct/coastlines/",
+  coastlinePointDomain: "https://gws.gplates.org/reconstruct/reconstruct_points/",
 };
 
 export const routerBasename = process.env.PUBLIC_URL;

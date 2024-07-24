@@ -19,6 +19,7 @@ export type MapLocation = {
 type FETCH_SEARCH_QUERY = { type: "fetch-search-query"; term: string };
 type ASYNC_ADD_FILTER = { type: "async-add-filter"; filter: any };
 type GET_FILTERED_COLUMNS = { type: "get-filtered-columns" };
+type GET_PALEO_COAST = { type: "get-paleo-coast"};
 type FETCH_XDD = { type: "fetch-xdd" };
 type MAP_QUERY = {
   type: "map-query" | "run-map-query";
@@ -30,7 +31,7 @@ type MAP_QUERY = {
 type GET_COLUMN_UNITS = { type: "get-column-units"; column: ColumnProperties };
 type GET_ELEVATION = { type: "get-elevation"; line: any };
 type GET_PBDB = { type: "get-pbdb"; collection_nos: any };
-type GET_MINDAT = { type: "get-mindat"; id: any };
+type GET_MINDAT = { type: "get-mindat"; id: number };
 // Define constants to be passed with actions
 type RECIEVE_DATA = { type: "recieve-data" };
 type REQUEST_DATA = { type: "request-data" };
@@ -44,6 +45,7 @@ type TOGGLE_ELEVATION_CHART = { type: "toggle-elevation-chart" };
 type TOGGLE_FILTERS = { type: "toggle-filters" };
 type REMOVE_FILTER = { type: "remove-filter"; filter: any };
 type UPDATE_COLUMN_FILTERS = { type: "update-column-filters"; columns: any };
+type UPDATE_PALEO_COAST = { type: "update-paleo-coast"; paleoCoast: any}
 type CLEAR_FILTERS = { type: "clear-filters" };
 type RecenterQueryMarker = { type: "recenter-query-marker" };
 
@@ -141,6 +143,11 @@ type SetAllColumns = {
   columns: ColumnGeoJSONRecord[];
 };
 
+type SetAllCoasts = {
+  type: "set-all-coasts";
+  coasts: ColumnGeoJSONRecord[];
+}
+
 type GetAllColumns = { type: "get-all-columns" };
 
 export type CoreAction =
@@ -158,6 +165,7 @@ export type CoreAction =
   | RECEIVED_XDD_QUERY
   | UPDATE_STATE
   | GET_FILTERED_COLUMNS
+  | GET_PALEO_COAST
   | ASYNC_ADD_FILTER
   | FETCH_SEARCH_QUERY
   | CONTEXT_OUTSIDE_CLICK
@@ -171,6 +179,7 @@ export type CoreAction =
   | TOGGLE_FILTERS
   | REMOVE_FILTER
   | UPDATE_COLUMN_FILTERS
+  | UPDATE_PALEO_COAST
   | START_MAP_QUERY
   | RECEIVED_MAP_QUERY
   | START_COLUMN_QUERY
@@ -197,7 +206,8 @@ export type CoreAction =
   | ToggleExperimentsPanel
   | GoToExperimentsPanel
   | GetAllColumns
-  | SetAllColumns;
+  | SetAllColumns
+  | SetAllCoasts;
 
 interface AsyncRequestState {
   // Events and tokens for xhr
@@ -246,14 +256,15 @@ export interface CoreState extends MapState, AsyncRequestState {
   inputFocus: boolean;
   elevationMarkerLocation: any;
   pbdbData: any[];
-  mindatData: any[];
   mindatPointData: any[];
   mapCenter: MapCenterInfo;
   mapUse3D: boolean;
   filtersOpen: boolean;
   filters: FilterData[];
   filteredColumns: object;
+  paleoCoast: object;
   showExperimentsPanel: boolean;
   allColumns: ColumnGeoJSONRecord[] | null;
+  allCoasts: ColumnGeoJSONRecord[] | null;
   data: [];
 }

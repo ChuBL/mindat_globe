@@ -156,3 +156,4 @@ public/MindatSql.db
 .apikey.yaml
 public/Mindat_Localities*
 public/Mindat_data_partial.json
+yarn.lock

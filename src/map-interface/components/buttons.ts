@@ -7,6 +7,8 @@ import {
   MapLayer,
   useHashNavigate,
 } from "../app-state";
+import AgeSlider from "./AgeSlider";
+import React, { useState, useEffect } from 'react';
 
 const h = hyperStyled(styles);
 
@@ -53,3 +55,41 @@ export function LayerButton(props: LayerButtonProps) {
     ...rest,
   });
 }
+
+export const PaleoLayerButton: React.FC<LayerButtonProps> = (props) => {
+  const { buttonComponent = ListButton, layer, name, ...rest } = props;
+  const active = useAppState((state) => state.core.mapLayers.has(layer));
+  const runAction = useAppActions();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const onClick = () => {
+    runAction({ type: 'toggle-map-layer', layer });
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  useEffect(() => {
+    if (active) {
+      setIsDropdownOpen(true);
+    } else {
+      setIsDropdownOpen(false);
+    }
+  }, [active]);
+
+  return React.createElement(
+    'div',
+    null,
+    h(buttonComponent, {
+      active,
+      onClick,
+      text: name,
+      ...rest,
+    }),
+    active && isDropdownOpen
+      ? React.createElement(
+          'div',
+          { className: 'slider-dropdown' },
+          React.createElement(AgeSlider, null)
+        )
+      : null
+  );
+};

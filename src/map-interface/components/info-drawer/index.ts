@@ -4,6 +4,7 @@ import { MapLayer, useAppActions } from "~/map-interface/app-state";
 import { InfoDrawerHeader } from "./header";
 import { FossilCollections } from "./fossil-collections";
 import { MindatCollections } from "./mindat-panel";
+import { PaleoSlider } from "./PaleoSlider";
 import { GeologicMapInfo } from "./geo-map";
 import { MacrostratLinkedData } from "./macrostrat-linked";
 import { RegionalStratigraphy } from "./reg-strat";

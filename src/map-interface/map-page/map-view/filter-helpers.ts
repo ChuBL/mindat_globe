@@ -1,10 +1,14 @@
-import { Feature, FeatureCollection, Point } from "geojson";
+import { Feature, FeatureCollection, Geometry, Point } from "geojson";
 import {
   FilterData,
   IntervalFilterData,
 } from "~/map-interface/app-state/handlers/filters";
 import { SETTINGS } from "../../settings";
-type Dictionary = { [key: string]: any };
+import axios from "axios";
+import mapboxgl from 'mapbox-gl';
+
+const paleoCoastUrl = `${SETTINGS.coastlineDomain}?&model=SETON2012`;
+const paleoCoastPointUrl = `${SETTINGS.coastlinePointDomain}?&model=SETON2012`;
 
 export function getExpressionForFilters(
   filters: FilterData[]
@@ -190,14 +194,13 @@ export async function getPBDBData(
 }
 
 export async function getMindatData(
-  filters: FilterData[],
   bounds: mapboxgl.LngLatBounds,
   zoom: number,
 ): Promise<FeatureCollection<Point, any>> {
 
   // Make sure lngs are between -180 and 180
-  const lngMin = bounds._sw.lng < -180 ? -180 : bounds._sw.lng;
-  const lngMax = bounds._ne.lng > 180 ? 180 : bounds._ne.lng;
+  let lngMin = bounds._sw.lng < -180 ? -180 : bounds._sw.lng;
+  let lngMax = bounds._ne.lng > 180 ? 180 : bounds._ne.lng;
   // If more than one time filter is present, multiple requests are needed
 
   /* Currently there is a limitation in the globe for the getBounds function that
@@ -215,7 +218,6 @@ export async function getMindatData(
     latMin = Math.max(Math.min(latMin, latMin * 5), -85);
     latMax = Math.min(Math.max(latMax, latMax * 5), 85);
   }
-
   
   let parsedData = []
 
@@ -230,6 +232,7 @@ export async function getMindatData(
 
   //filters out all of the data that is not within the correct range.
   //I am sure there is some time optimization that can happen here.
+  let coordinates = [];
   let filteredData = [];
   try {
     parsedData.results.forEach((dict) => {
@@ -241,15 +244,17 @@ export async function getMindatData(
     console.error("The type of jsonData is", typeof(parsedData), "The error is this", error);
   }
 
-
   //returns the datapoints in a featureCollection geoJSON, this allows it to be plotted by other functions
   return {
     type: "FeatureCollection",
     features: filteredData.map((f, i) => {
       return {
         type: "Feature",
-        properties: f,
         id: i,
+        properties: {
+          ...f,
+          cluster: false,
+        },
         geometry: {
           type: "Point",
           coordinates: [f.longitude, f.latitude],
@@ -257,4 +262,90 @@ export async function getMindatData(
       };
     }),
   };
+}
+
+//function to return a set of points translated to the given age.
+export async function getPaleoPoints(age, POINTS)
+{
+  let points = POINTS;
+  //the available age range is from 0-200, it is on a slider so it shouldn't be able to deviate.
+  if(age <= 200 && age > 0){
+    let coordinates = [];
+    //grabs only the coordinates from the points.
+    points.forEach((dict) => {
+      coordinates.push(dict.geometry.coordinates[0]);
+      coordinates.push(dict.geometry.coordinates[1]);
+    });
+
+    //creates and runs the query
+    if(coordinates.length > 0){
+      const coordStr = coordinates.join(',');
+      const url = `${paleoCoastPointUrl}&points=${coordStr}&time=${age}`;
+      try{
+        let response = await axios.get(url, { responseType: "json" })
+  
+        //returns the given points to it's corresponding datapoint.
+        for(let i = 0; i < points.length; i++){
+          points[i].geometry.coordinates[0] = response.data.coordinates[i][0];
+          points[i].geometry.coordinates[1] = response.data.coordinates[i][1];
+        }
+      } catch (error) {
+        console.error("Issue gathering new point data, this can occur because the url is too long: ", error);
+      }
+    }
+    return points;
+  }else{
+    console.log("Invalid age range for paleoCoast.");
+    return null;
+  }
+}
+
+//this function returns bounds from an age to modern day, so the viewbox can retrieve datapoints
+//The viewport does warp so it may be worth looking into alternatives to just the min's and max's
+export async function getPaleoBounds(age, BOUNDS){
+  let bounds = BOUNDS;
+
+  let lngMin = bounds._sw.lng < -180 ? -180 : bounds._sw.lng;
+  let lngMax = bounds._ne.lng > 180 ? 180 : bounds._ne.lng;
+  let latMin = bounds._sw.lat;
+  let latMax = bounds._ne.lat;
+
+
+  //runs the query
+  if(age){
+    const url = `${paleoCoastPointUrl}&points=${lngMin},${latMin},${lngMax},${latMax}&time=${age}&reverse`;
+    let res = await axios.get(url, { responseType: "json" });
+
+    lngMin = res.data.coordinates[0][0];
+    lngMax = res.data.coordinates[1][0];
+    latMin = res.data.coordinates[0][1];
+    latMax = res.data.coordinates[1][1];
+  }
+
+  //returns the data in a format which mapbox can recognize as bounds
+  const changedBounds = new mapboxgl.LngLatBounds([lngMin, latMin], [lngMax, latMax]);
+  return changedBounds;
+}
+
+//management of age, which is done from a few files.
+let age: number | null = null;
+
+export function getAge(): number | null {
+  return age;
+}
+
+export function setAge(newAge: number): void {
+  if (newAge <= 200 && newAge > 0) {
+    age = newAge;
+  } else {
+    console.error("Invalid age range. Age must be between 1 and 200.");
+  }
+}
+
+//gets coast data based on the previously defined age variable.
+export async function getCoasts() {
+  let url = `${paleoCoastUrl}&time=${age}`;
+  let res = await axios.get(url, {responseType: "json"});
+
+  return res.data;
 }

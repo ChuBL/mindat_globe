@@ -7,6 +7,7 @@ export const base = `${SETTINGS.apiDomain}/api/v2`;
 const basev1 = `${SETTINGS.gddDomain}/api/v1`;
 const pbdbURL = `${SETTINGS.pbdbDomain}/data1.2/colls/list.json`;
 const pbdbURLOccs = `${SETTINGS.pbdbDomain}/data1.2/occs/list.json`;
+const paleoCoastUrl = `${SETTINGS.coastlineDomain}?&model=SETON2012`;
 
 import { FilterType } from "./filters";
 
@@ -56,6 +57,13 @@ export async function fetchFilteredColumns(providedFilters) {
   let queryString = formColumnQueryString(providedFilters);
   let url = `${base}/columns?format=geojson_bare&${queryString}`;
   let res = await axios.get(url, { responseType: "json" });
+  return res.data;
+}
+
+
+export async function fetchPaleoCoast(age) {
+  let url = `${paleoCoastUrl}&time=${age}`;
+  let res = await axios.get(url, {responseType: "json"});
   return res.data;
 }
 
@@ -119,6 +127,13 @@ export async function fetchAllColumns(): Promise<ColumnGeoJSONRecord[]> {
     responseType: "json",
     params: { format: "geojson_bare", all: true },
   });
+
+  return res.data.features;
+}
+
+export async function fetchAllCoasts(age): Promise<ColumnGeoJSONRecord[]> {
+  let url = `${paleoCoastUrl}&time=${age}`;
+  let res = await axios.get(url, {responseType: "json"});
 
   return res.data.features;
 }

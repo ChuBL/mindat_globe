@@ -32,7 +32,7 @@ import {
   mergeStyles,
   MapPosition,
 } from "@macrostrat/mapbox-utils";
-import { getExpressionForFilters } from "./filter-helpers";
+import { getExpressionForFilters, getAge, setAge } from "./filter-helpers";
 import { MapSourcesLayer, mapStyle, toggleLineSymbols } from "../map-style";
 import { SETTINGS } from "../../settings";
 import mapboxgl from "mapbox-gl";
@@ -164,6 +164,7 @@ function MapContainer(props) {
   const {
     filters,
     filteredColumns,
+    allCoasts,
     mapLayers,
     mapCenter,
     elevationChartOpen,
@@ -278,6 +279,29 @@ function MapContainer(props) {
     });
   }, [mapRef.current, allColumns, mapInitialized]);
 
+  //updates paleoCoast layer.
+  const paleoCoasts = useAppState((state) => state.core.allCoasts);
+  useEffect(() => {
+    const map = mapRef.current;
+    const ncols = paleoCoasts?.length ?? 0;
+    if (map == null || ncols == 0) return;
+    // Set source data for coasts
+    map.once("style.load", () => {
+      const src = map.getSource("coasts");
+      if (src == null) return;
+      src.setData({
+        type: "FeatureCollection",
+        features: paleoCoasts ?? [],
+      });
+    });
+    const src = map.getSource("coasts");
+    if (src == null) return;
+    src.setData({
+      type: "FeatureCollection",
+      features: paleoCoasts ?? [],
+    });
+  }, [mapRef.current, paleoCoasts, mapInitialized]);
+
   useEffect(() => {
     // Get the current value of the map. Useful for gradually moving away
     // from class component
@@ -309,6 +333,13 @@ function MapContainer(props) {
   }, [filters, mapLayers]);
 
   useEffect(() => {
+    if (mapLayers.has(MapLayer.PALEOCOAST)) {
+      runAction({ type: "get-paleo-coast"});
+    }
+    runAction({ type: "map-layers-changed", mapLayers });
+  }, [filters, mapLayers]);
+
+  useEffect(() => {
     const map = mapRef.current;
     if (map == null || !mapInitialized || !styleLoaded) return;
     const expr = getExpressionForFilters(filters);
@@ -317,7 +348,13 @@ function MapContainer(props) {
     map.setFilter("burwell_stroke", expr);
   }, [filters, mapInitialized, styleLoaded]);
 
-  useMapLabelVisibility(mapRef, mapLayers.has(MapLayer.LABELS));
+  //disables the map layers if PaleoCoast is enabled, if not, base it on label layer.
+  if(mapLayers.has(MapLayer.PALEOCOAST)){
+    useMapLabelVisibility(mapRef, !mapLayers.has(MapLayer.PALEOCOAST));
+  }else{
+    useMapLabelVisibility(mapRef, mapLayers.has(MapLayer.LABELS));
+  }
+  
   useEffect(() => {
     const map = mapRef.current;
     if (map == null) return;
@@ -359,6 +396,7 @@ function MapContainer(props) {
     h(VestigialMap, {
       filters,
       filteredColumns,
+      allCoasts,
       // Recreate the set every time to force a re-render
       mapLayers,
       mapCenter,
