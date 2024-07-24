@@ -164,7 +164,7 @@ function MapContainer(props) {
   const {
     filters,
     filteredColumns,
-    filteredPaleoCoast,
+    allCoasts,
     mapLayers,
     mapCenter,
     elevationChartOpen,
@@ -279,10 +279,11 @@ function MapContainer(props) {
     });
   }, [mapRef.current, allColumns, mapInitialized]);
 
-  const allCoasts = useAppState((state) => state.core.allCoasts);
+  //updates paleoCoast layer.
+  const paleoCoasts = useAppState((state) => state.core.allCoasts);
   useEffect(() => {
     const map = mapRef.current;
-    const ncols = allCoasts?.length ?? 0;
+    const ncols = paleoCoasts?.length ?? 0;
     if (map == null || ncols == 0) return;
     // Set source data for coasts
     map.once("style.load", () => {
@@ -290,16 +291,16 @@ function MapContainer(props) {
       if (src == null) return;
       src.setData({
         type: "FeatureCollection",
-        features: allCoasts ?? [],
+        features: paleoCoasts ?? [],
       });
     });
     const src = map.getSource("coasts");
     if (src == null) return;
     src.setData({
       type: "FeatureCollection",
-      features: allCoasts ?? [],
+      features: paleoCoasts ?? [],
     });
-  }, [mapRef.current, allCoasts, mapInitialized]);
+  }, [mapRef.current, paleoCoasts, mapInitialized]);
 
   useEffect(() => {
     // Get the current value of the map. Useful for gradually moving away
@@ -347,7 +348,13 @@ function MapContainer(props) {
     map.setFilter("burwell_stroke", expr);
   }, [filters, mapInitialized, styleLoaded]);
 
-  useMapLabelVisibility(mapRef, mapLayers.has(MapLayer.LABELS));
+  //disables the map layers if PaleoCoast is enabled, if not, base it on label layer.
+  if(mapLayers.has(MapLayer.PALEOCOAST)){
+    useMapLabelVisibility(mapRef, !mapLayers.has(MapLayer.PALEOCOAST));
+  }else{
+    useMapLabelVisibility(mapRef, mapLayers.has(MapLayer.LABELS));
+  }
+  
   useEffect(() => {
     const map = mapRef.current;
     if (map == null) return;
@@ -389,7 +396,7 @@ function MapContainer(props) {
     h(VestigialMap, {
       filters,
       filteredColumns,
-      filteredPaleoCoast,
+      allCoasts,
       // Recreate the set every time to force a re-render
       mapLayers,
       mapCenter,

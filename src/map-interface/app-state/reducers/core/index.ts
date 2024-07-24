@@ -58,7 +58,6 @@ const defaultState: CoreState = {
   elevationData: [],
   elevationMarkerLocation: [],
   pbdbData: [],
-  mindatData: [],
   mindatPointData: null,
   mapIsLoading: false,
   mapCenter: {
@@ -97,17 +96,15 @@ export function coreReducer(
     case "map-layers-changed":
       let columnInfo = state.columnInfo;
       let pbdbData = state.pbdbData;
-      let mindatData = state.mindatData;
       let mindatPointData = state.mindatPointData;
       if (!action.mapLayers.has(MapLayer.COLUMNS)) columnInfo = null;
       if (!action.mapLayers.has(MapLayer.FOSSILS)) pbdbData = [];
-      if (!action.mapLayers.has(MapLayer.MINDAT)) mindatData = [], mindatPointData = null;
+      if (!action.mapLayers.has(MapLayer.MINDAT)) mindatPointData = null;
       return {
         ...state,
         columnInfo,
         pbdbData,
         mindatPointData,
-        mindatData,
       };
     case "toggle-menu":
       const shouldOpen = state.inputFocus || !state.menuOpen;

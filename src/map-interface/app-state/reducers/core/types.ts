@@ -256,7 +256,6 @@ export interface CoreState extends MapState, AsyncRequestState {
   inputFocus: boolean;
   elevationMarkerLocation: any;
   pbdbData: any[];
-  mindatData: any[];
   mindatPointData: any[];
   mapCenter: MapCenterInfo;
   mapUse3D: boolean;

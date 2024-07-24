@@ -81,7 +81,6 @@ function setMapStyle(class_, map, mapStyle, props) {
             ? "visible"
             : "none";
         if (visibility !== showCoast) {
-          console.log(visibility);
           map.setLayoutProperty(layer.id, "visibility", showCoast);
         }
       }

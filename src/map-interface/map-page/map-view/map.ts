@@ -30,12 +30,12 @@ interface MapProps {
   onQueryMap: (event: any, columns: ColumnProperties[]) => void;
 }
 
-
+//function to decide when to retrieve coasts, this is set when the age slider of paleoCoasts is released
+//and it is unset once the command begins to run
 let shouldRetrieveCoasts = false;
 
 export function setRetrieveCoasts(shouldRetrieve) {
   shouldRetrieveCoasts = shouldRetrieve;
-  console.log(shouldRetrieveCoasts);
 }
 
 class VestigialMap extends Component<MapProps, {}> {
@@ -61,7 +61,6 @@ class VestigialMap extends Component<MapProps, {}> {
 
   onStyleLoad() {
     // The initial draw of the layers
-    // console.log("Style loaded", this.props);
     if (!this.map.style._loaded) {
       return;
     }
@@ -105,7 +104,6 @@ class VestigialMap extends Component<MapProps, {}> {
       if (layer.source === "coasts" && mapLayers.has(MapLayer.PALEOCOAST)) {
         this.map.setLayoutProperty(layer.id, "visibility", "visible");
       }
-      //console.log(layer);
     });
 
     if (mapLayers.has(MapLayer.FOSSILS)) {
@@ -148,6 +146,10 @@ class VestigialMap extends Component<MapProps, {}> {
         return;
       }
       this.props.runAction({ type: "map-loading" });
+
+      if (this.props.mapLayers.has(MapLayer.PALEOCOAST) && shouldRetrieveCoasts == true) {
+        this.refreshPaleoCoast();
+      }
     });
 
     this.map.on("moveend", () => {
@@ -480,7 +482,7 @@ class VestigialMap extends Component<MapProps, {}> {
         if (nextProps.mapLayers.has(MapLayer.MINDAT)) {
           this.refreshMindat();
         }
-        if (mapLayers.has(MapLayer.PALEOCOAST) && shouldRetrieveCoasts == true) {
+        if (nextProps.mapLayers.has(MapLayer.PALEOCOAST) && shouldRetrieveCoasts == true) {
           this.refreshPaleoCoast();
         }
 
@@ -493,7 +495,7 @@ class VestigialMap extends Component<MapProps, {}> {
       if (nextProps.mapLayers.has(MapLayer.MINDAT)) {
         this.refreshMindat();
       }
-      if (mapLayers.has(MapLayer.PALEOCOAST) && shouldRetrieveCoasts == true) {
+      if (nextProps.mapLayers.has(MapLayer.PALEOCOAST) && shouldRetrieveCoasts == true) {
         this.refreshPaleoCoast();
       }
 
@@ -505,6 +507,10 @@ class VestigialMap extends Component<MapProps, {}> {
 
   // PBDB hexgrids and points are refreshed on every map move
   async refreshPBDB() {
+    //these are needed if we are trying to set bounds based on paleo age.
+    // const { mapLayers } = this.props; 
+    // let paleoAge = mapLayers.has(MapLayer.PALEOCOAST) ? getAge() : null;
+    // let customBounds = paleoAge ? await getPaleoBounds(paleoAge, zoom, bounds) : bounds;
     let bounds = this.map.getBounds();
     let zoom = this.map.getZoom();
     const maxClusterZoom = 7;
@@ -518,12 +524,19 @@ class VestigialMap extends Component<MapProps, {}> {
     
     // Show or hide the proper PBDB layers
     if (zoom < maxClusterZoom) {
+      //paleo bounds doesn't work well with this since there are too many points to put to the url in most cases.
+      // if(paleoAge && this.pbdbPoints.features.length > 0){
+      //   this.pbdbPoints.features = await getPaleoPoints(paleoAge, this.pbdbPoints.features);
+      // }
       this.map.getSource("pbdb-clusters").setData(this.pbdbPoints);
       this.map.setLayoutProperty("pbdb-clusters", "visibility", "visible");
       this.map.setLayoutProperty("pbdb-points-clustered", "visibility", "none");
       //  map.map.setLayoutProperty('pbdb-point-cluster-count', 'visibility', 'none')
       this.map.setLayoutProperty("pbdb-points", "visibility", "none");
     } else {
+      // if(paleoAge && this.pbdbPoints.features.length > 0){
+      //   this.pbdbPoints.features = await getPaleoPoints(paleoAge, this.pbdbPoints.features);
+      // }
       this.map.getSource("pbdb-points").setData(this.pbdbPoints);
 
       //map.map.getSource("pbdb-clusters").setData(map.pbdbPoints);
@@ -541,13 +554,14 @@ class VestigialMap extends Component<MapProps, {}> {
 
 
   async refreshMindat() {
-    const { mapLayers } = this.props;
     let bounds = this.map.getBounds();
     let zoom = this.map.getZoom();
-    let paleoAge = mapLayers.has(MapLayer.PALEOCOAST) ? getAge() : null;
     let maxClusterZoom = 10;
 
-    let customBounds = paleoAge ? await getPaleoBounds(paleoAge, zoom, bounds) : bounds;
+    //necessary for using paleo points
+    const { mapLayers } = this.props;
+    let paleoAge = mapLayers.has(MapLayer.PALEOCOAST) ? getAge() : null;
+    let customBounds = paleoAge ? await getPaleoBounds(paleoAge, bounds) : bounds;
 
     this.mindatPoints = await getMindatData(
       customBounds,
@@ -556,15 +570,15 @@ class VestigialMap extends Component<MapProps, {}> {
 
     if(zoom < maxClusterZoom) {
       const points = this.mindatPoints.features;
-      const smashedBounds = this.map ? [].concat.apply([], customBounds.toArray()) : null;
 
-      // let clusters = this.map ? getClusters(points, smashedBounds, zoom): null;
+      //sets clusters
       let index = new Supercluster({
         log: false,
         radius: 45,
         maxZoom: maxClusterZoom
       }).load(points);
       
+      //sets a custom bound for clustering
       let clusters = index.getClusters([customBounds._sw.lng, customBounds._sw.lat, 
                                         customBounds._ne.lng, customBounds._ne.lat], zoom);
 
@@ -603,24 +617,17 @@ class VestigialMap extends Component<MapProps, {}> {
       this.map.setLayoutProperty("mindat-points", "visibility", "visible");
       this.map.setLayoutProperty("mindat-clusters", "visibility", "none");
     }
-
-    // console.log(bounds, [bounds._sw.lng, bounds._sw.lat, bounds._ne.lng, bounds._ne.lat], geoJson, this.mindatPoints);
-
-    // Show or hide the mindat layers
   }
 
+  //function to return and set paleoCoast data during runtime.
   async refreshPaleoCoast() {
+    //setRetrieve makes sure we don't spam requests
+    setRetrieveCoasts(false);
     let coasts = await getCoasts();
 
     const src = this.map.getSource("coasts");
     if (src == null) return;
-    console.log(coasts);
     src.setData(coasts);
-
-    setRetrieveCoasts(false);
-
-    // this.map.getSource("coasts").setData(coasts);
-    // this.map.setLayoutProperty("coasts", "visibility", "visible");
   }
 
   // Update the colors of the hexgrids
