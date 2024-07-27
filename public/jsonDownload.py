@@ -31,7 +31,7 @@ with open('public/Mindat_data_partial.json', 'w+') as f:
     f.close()
   
 #For when you only want mindat partial  
-exit()
+# exit()
 
 #numDataset dictates how many final sets of data there will be. 
 #There needs to be a good balance between not having too many data sets and not having too many items per set

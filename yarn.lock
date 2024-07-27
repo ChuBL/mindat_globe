@@ -2798,7 +2798,7 @@ __metadata:
     classnames: ^2.3.1
     d3-array: ^2.12.1
     immutability-helper: ^3.1.1
-    react: ^18.3.1
+    react: ^17.0.2
     react-color: ^2.19.3
     react-datasheet: ^1.4.9
     react-dnd: ^14.0.2
@@ -2837,7 +2837,7 @@ __metadata:
     identity-obj-proxy: ^3.0.0
     jest: ^27.4.7
     mapbox-gl: ^2.8.2
-    react: ^18.3.1
+    react: ^17.0.2
     rollup: ^2.66.1
     rollup-plugin-dts: ^4.1.0
     rollup-plugin-peer-deps-external: ^2.2.4
