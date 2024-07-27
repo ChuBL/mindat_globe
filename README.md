@@ -8,7 +8,7 @@ Currently the application is bundled using webpackv5; however, in the near futur
 
 This package requires relatively new features of package managers for multi-package workspaces.
 Make sure you have NPM version 7 or higher. This can be installed with `npm install -g npm@7`.
-This package should work with Yarn, but we haven't yet tested it.
+This package also works with yarn.
 
 You will need to download the data from the openmindat python package. A download file is already setup and can be found in the public directory. This current version uses the jsonDownload.py file. You will need an openminda api key, if you do not have one, you can follow these instructions. https://www.mindat.org/a/how_to_get_my_mindat_api_key
 
